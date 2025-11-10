@@ -5,7 +5,7 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!home\\.html|help\\.html|about\\.html|assets/).*)",
       "destination": "/index.html"
     }
   ],
