@@ -43,3 +43,28 @@ body {
   transform: translateY(-2px) scale(1.02);
 }
 
+/* Badge status styles */
+.badge-status[data-status="good"] {
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.10);
+}
+
+.badge-status[data-status="warn"] {
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.10);
+}
+
+.badge-status[data-status="bad"] {
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.10);
+}
+
+.badge-status[data-status="offline"] {
+  border-color: rgba(148, 163, 184, 0.35);
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.10);
+}
+
