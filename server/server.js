@@ -16,19 +16,48 @@ connectDB();
 const app = express();
 const httpServer = createServer(app);
 
+// CORS configuration - Parse allowed origins
+const getAllowedOrigins = () => {
+  if (process.env.ALLOWED_ORIGINS) {
+    return process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim());
+  }
+  if (process.env.CLIENT_URL) {
+    return [process.env.CLIENT_URL.trim()];
+  }
+  return ['*'];
+};
+
+const allowedOrigins = getAllowedOrigins();
+console.log('CORS Allowed Origins:', allowedOrigins);
+console.log('CLIENT_URL:', process.env.CLIENT_URL);
+console.log('ALLOWED_ORIGINS:', process.env.ALLOWED_ORIGINS);
+
 // Socket.io setup
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.ALLOWED_ORIGINS?.split(',') || process.env.CLIENT_URL || '*',
-    methods: ['GET', 'POST'],
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   },
 });
 
-// Middleware
+// Middleware - CORS with proper preflight handling
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || process.env.CLIENT_URL || '*',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
