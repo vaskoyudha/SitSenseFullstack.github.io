@@ -19,6 +19,12 @@
         }
       ]
     }
-  ]
+  ],
+  "_comment": "REQUIRED ENVIRONMENT VARIABLES - Set these in Vercel Dashboard > Settings > Environment Variables:",
+  "_env_vars": {
+    "VITE_API_URL": "Backend API URL (e.g., https://your-backend.railway.app/api) - Must include /api",
+    "VITE_SOCKET_URL": "Socket.io Server URL (e.g., https://your-backend.railway.app) - Do NOT include /api"
+  },
+  "_instructions": "1. Go to Vercel Dashboard > Your Project > Settings > Environment Variables, 2. Add VITE_API_URL and VITE_SOCKET_URL, 3. Set for Production, Preview, and Development, 4. Redeploy after adding variables"
 }
 
