@@ -4,6 +4,17 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  // Safelist critical custom classes to ensure they're always included
+  safelist: [
+    'btn-gradient-primary',
+    'glassy-card',
+    'card-border',
+    'floating-element',
+    'floating-glow',
+    {
+      pattern: /^(bg|text|border)-(cyan|purple|emerald|yellow|rose|violet)-(300|400|500)/,
+    },
+  ],
   theme: {
     extend: {
       colors: {

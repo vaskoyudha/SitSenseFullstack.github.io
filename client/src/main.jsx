@@ -3,6 +3,53 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
 
+// CSS loading verification
+if (import.meta.env.DEV) {
+  console.log('✅ CSS file imported');
+}
+
+// Verify critical styles are available after DOM is ready
+const verifyCriticalStyles = () => {
+  if (typeof document === 'undefined') return;
+  
+  try {
+    const testElement = document.createElement('div');
+    testElement.className = 'btn-gradient-primary';
+    testElement.style.display = 'none';
+    testElement.style.position = 'absolute';
+    testElement.style.visibility = 'hidden';
+    document.body.appendChild(testElement);
+    
+    const styles = window.getComputedStyle(testElement);
+    const hasGradient = styles.backgroundImage && styles.backgroundImage !== 'none' && styles.backgroundImage.includes('gradient');
+    
+    if (import.meta.env.DEV) {
+      if (hasGradient) {
+        console.log('✅ Critical CSS classes loaded correctly');
+      } else {
+        console.warn('⚠️ Critical CSS classes may not be loaded correctly');
+      }
+    }
+    
+    if (testElement.parentNode) {
+      document.body.removeChild(testElement);
+    }
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('⚠️ CSS verification error:', error);
+    }
+  }
+};
+
+// Run verification after DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(verifyCriticalStyles, 200);
+  });
+} else {
+  setTimeout(verifyCriticalStyles, 200);
+}
+
 // Environment variable validation
 const checkEnvironmentVariables = () => {
   const apiUrl = import.meta.env.VITE_API_URL;
