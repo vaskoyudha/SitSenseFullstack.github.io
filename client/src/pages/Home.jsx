@@ -1,5 +1,18 @@
 import { Link } from 'react-router-dom';
-import { Rocket, Info, Activity, Sparkles, BarChart2 } from 'lucide-react';
+import { 
+  Rocket, 
+  Info, 
+  Activity, 
+  Sparkles, 
+  BarChart2,
+  Monitor,
+  Zap,
+  Smartphone,
+  Database,
+  Wifi,
+  Cpu,
+  Signal
+} from 'lucide-react';
 import WelcomeModal from '../components/Common/WelcomeModal';
 
 const Home = () => {
@@ -21,7 +34,77 @@ const Home = () => {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 md:py-32 flex items-center pt-24">
+        {/* Background gradient effects */}
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 via-purple-500/20 to-emerald-500/20 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        
+        {/* Pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-10 pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }}
+        ></div>
+        
+        {/* Floating Decorative Elements */}
+        {/* Top Left */}
+        <div className="floating-element slow" style={{ top: '10%', left: '5%', animationDelay: '0s' }}>
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl glassy-card card-border flex items-center justify-center floating-glow" style={{ background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2))' }}>
+            <Activity className="h-10 w-10 md:h-12 md:w-12 text-cyan-300" />
+          </div>
+        </div>
+        
+        {/* Top Right */}
+        <div className="floating-element reverse fast" style={{ top: '15%', right: '8%', animationDelay: '1s' }}>
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full glassy-card card-border flex items-center justify-center floating-glow" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(16, 185, 129, 0.2))' }}>
+            <Monitor className="h-8 w-8 md:h-10 md:w-10 text-purple-300" />
+          </div>
+        </div>
+        
+        {/* Middle Left */}
+        <div className="floating-element" style={{ top: '50%', left: '3%', animationDelay: '2s' }}>
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl glassy-card card-border flex items-center justify-center floating-glow" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2))' }}>
+            <Zap className="h-8 w-8 md:h-10 md:w-10 text-emerald-300" />
+          </div>
+        </div>
+        
+        {/* Middle Right */}
+        <div className="floating-element reverse slow" style={{ top: '45%', right: '5%', animationDelay: '1.5s' }}>
+          <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl glassy-card card-border flex items-center justify-center floating-glow" style={{ background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(139, 92, 246, 0.25))' }}>
+            <Smartphone className="h-10 w-10 md:h-14 md:w-14 text-cyan-400" />
+          </div>
+        </div>
+        
+        {/* Bottom Left */}
+        <div className="floating-element fast" style={{ bottom: '15%', left: '8%', animationDelay: '0.5s' }}>
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full glassy-card card-border flex items-center justify-center floating-glow" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(16, 185, 129, 0.2))' }}>
+            <Database className="h-8 w-8 md:h-10 md:w-10 text-purple-300" />
+          </div>
+        </div>
+        
+        {/* Bottom Right */}
+        <div className="floating-element reverse" style={{ bottom: '10%', right: '3%', animationDelay: '2.5s' }}>
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl glassy-card card-border flex items-center justify-center floating-glow" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2))' }}>
+            <Wifi className="h-8 w-8 md:h-10 md:w-10 text-emerald-300" />
+          </div>
+        </div>
+        
+        {/* Center Left (Small) */}
+        <div className="floating-element slow" style={{ top: '30%', left: '12%', animationDelay: '3s' }}>
+          <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg glassy-card card-border flex items-center justify-center floating-glow" style={{ background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(139, 92, 246, 0.15))' }}>
+            <Cpu className="h-6 w-6 md:h-8 md:w-8 text-cyan-200" />
+          </div>
+        </div>
+        
+        {/* Center Right (Small) */}
+        <div className="floating-element reverse fast" style={{ top: '35%', right: '12%', animationDelay: '1.8s' }}>
+          <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg glassy-card card-border flex items-center justify-center floating-glow" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(16, 185, 129, 0.15))' }}>
+            <Signal className="h-6 w-6 md:h-8 md:w-8 text-purple-200" />
+          </div>
+        </div>
         
         <div className="relative z-10 text-center max-w-4xl mx-auto w-full px-4 py-12">
           <div className="mb-6 flex justify-center">

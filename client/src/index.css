@@ -68,3 +68,58 @@ body {
   background: rgba(148, 163, 184, 0.10);
 }
 
+/* Floating decorative elements animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  33% {
+    transform: translateY(-20px) translateX(10px);
+  }
+  66% {
+    transform: translateY(10px) translateX(-10px);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  33% {
+    transform: translateY(20px) translateX(-10px);
+  }
+  66% {
+    transform: translateY(-10px) translateX(10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), 0 0 40px rgba(139, 92, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.5), 0 0 60px rgba(139, 92, 246, 0.4);
+  }
+}
+
+.floating-element {
+  position: absolute;
+  animation: float 6s ease-in-out infinite;
+}
+
+.floating-element.reverse {
+  animation: float-reverse 8s ease-in-out infinite;
+}
+
+.floating-element.slow {
+  animation-duration: 10s;
+}
+
+.floating-element.fast {
+  animation-duration: 4s;
+}
+
+.floating-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
