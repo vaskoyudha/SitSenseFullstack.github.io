@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { DeviceProvider } from './context/DeviceContext';
@@ -14,14 +15,22 @@ import Register from './pages/Register';
 
 // Protected Route Component
 import ProtectedRoute from './components/Common/ProtectedRoute';
+import { ToastContainer } from './components/Common/Toast';
+import { hookToastEvents } from './utils/ui';
 
 function App() {
+  // Hook up toast event listeners
+  React.useEffect(() => {
+    hookToastEvents();
+  }, []);
+
   return (
     <Router>
       <AuthProvider>
         <SettingsProvider>
           <DeviceProvider>
             <PostureProvider>
+              <ToastContainer />
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />

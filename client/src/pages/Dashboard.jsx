@@ -3,10 +3,41 @@ import Header from '../components/Layout/Header';
 import Footer from '../components/Layout/Footer';
 import { usePosture } from '../context/PostureContext';
 import { useDevice } from '../context/DeviceContext';
+import { useSettings } from '../context/SettingsContext';
+import { useSitTimer } from '../hooks/useSitTimer';
+import { initAudioElements } from '../utils/alerts';
+import ChartsContainer from '../components/Charts/ChartsContainer';
+import ScoreBreakdown from '../components/Dashboard/ScoreBreakdown';
+import PanelParameters from '../components/PostureVisual/PanelParameters';
+import AIAdvicePanel from '../components/Dashboard/AIAdvicePanel';
 
 const Dashboard = () => {
   const { postureData, sessionData } = usePosture();
   const { activeDevice } = useDevice();
+  const { settings } = useSettings();
+  
+  // Initialize sit timer with thresholds from settings
+  const sitTimer = useSitTimer(
+    {
+      soft: (settings.softThreshold || 30) * 60, // Convert minutes to seconds
+      hard: (settings.hardThreshold || 60) * 60,
+    },
+    !settings.soundEnabled
+  );
+
+  // Initialize audio elements on mount
+  useEffect(() => {
+    initAudioElements();
+  }, []);
+
+  // Start/stop timer based on session
+  useEffect(() => {
+    if (sessionData.startTime && !sitTimer.running) {
+      sitTimer.start();
+    } else if (!sessionData.startTime && sitTimer.running) {
+      sitTimer.stop();
+    }
+  }, [sessionData.startTime, sitTimer]);
 
   return (
     <div className="min-h-screen bg-[#0b1220] text-slate-100">
@@ -69,14 +100,11 @@ const Dashboard = () => {
                 <h3 className="card-title text-base">Durasi Duduk</h3>
               </div>
               <div className="mt-2 text-3xl font-bold">
-                {sessionData.startTime
-                  ? `${Math.floor((Date.now() - new Date(sessionData.startTime).getTime()) / 3600000)}:${String(
-                      Math.floor(
-                        ((Date.now() - new Date(sessionData.startTime).getTime()) % 3600000) / 60000
-                      )
-                    ).padStart(2, '0')}:00`
-                  : '00:00:00'}
+                {sitTimer.formattedDuration || '00:00:00'}
               </div>
+              <p className="text-xs text-slate-300/80 mt-1">
+                Ambang lembut: <span>{sitTimer.softThresholdLabel}</span> • ambang kuat: <span>{sitTimer.hardThresholdLabel}</span>
+              </p>
             </div>
           </div>
           
@@ -129,10 +157,17 @@ const Dashboard = () => {
           </div>
         </section>
 
-        {/* Placeholder for more components */}
-        <div className="card glassy-card card-border p-8 text-center text-slate-400">
-          <p>Dashboard components akan ditambahkan di sini (charts, posture visual, dll)</p>
-        </div>
+        {/* Posture Visual Panel */}
+        <PanelParameters />
+
+        {/* AI Advice Panel */}
+        <AIAdvicePanel />
+
+        {/* Charts */}
+        <ChartsContainer />
+
+        {/* Score Breakdown */}
+        <ScoreBreakdown />
       </main>
 
       <Footer />
