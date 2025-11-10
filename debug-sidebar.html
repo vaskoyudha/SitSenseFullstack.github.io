@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Sidebar Width</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e293b; color: #fff; }
+        .cmd { background: #334155; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .result { background: #0f172a; padding: 10px; margin: 5px 0; border-left: 3px solid #3b82f6; }
+        button { background: #3b82f6; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Sidebar Width Debugger</h1>
+    
+    <div class="cmd">
+        <strong>Jalankan ini di Console (F12):</strong>
+    </div>
+    
+    <button onclick="runDebug()">Run Debug</button>
+    <button onclick="testCollapse()">Test Collapse</button>
+    <button onclick="testExpand()">Test Expand</button>
+    <button onclick="clearResults()">Clear</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        function log(msg, isError = false) {
+            const div = document.createElement('div');
+            div.className = 'result';
+            div.textContent = msg;
+            if (isError) div.style.borderColor = '#ef4444';
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        function runDebug() {
+            clearResults();
+            log('=== SIDEBAR DEBUG START ===');
+            
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar) {
+                log('❌ ERROR: Sidebar not found!', true);
+                return;
+            }
+            
+            log('✅ Sidebar found');
+            
+            // Check computed style
+            const computed = window.getComputedStyle(sidebar);
+            log(`📏 Computed width: ${computed.width}`);
+            log(`📏 Computed min-width: ${computed.minWidth}`);
+            log(`📏 Computed max-width: ${computed.maxWidth}`);
+            
+            // Check inline style
+            log(`📏 Inline style width: ${sidebar.style.width || 'not set'}`);
+            
+            // Check classes
+            log(`🏷️  Has 'collapsed' class: ${sidebar.classList.contains('collapsed')}`);
+            log(`🏷️  All classes: ${sidebar.className}`);
+            
+            // Check CSS rules affecting width
+            const allRules = Array.from(document.styleSheets)
+                .flatMap(sheet => {
+                    try {
+                        return Array.from(sheet.cssRules || []);
+                    } catch(e) {
+                        return [];
+                    }
+                })
+                .filter(rule => {
+                    return rule.selectorText && 
+                           rule.selectorText.includes('sidebar') && 
+                           rule.style && 
+                           (rule.style.width || rule.style.minWidth || rule.style.maxWidth);
+                });
+            
+            log(`📋 Found ${allRules.length} CSS rules affecting sidebar width`);
+            allRules.forEach(rule => {
+                log(`   - ${rule.selectorText}: width=${rule.style.width}, min=${rule.style.minWidth}, max=${rule.style.maxWidth}`);
+            });
+            
+            // Check SidebarManager
+            if (window.SidebarManager) {
+                log(`✅ SidebarManager available`);
+                log(`   - isCollapsed: ${window.SidebarManager.isCollapsed}`);
+            } else {
+                log('❌ SidebarManager NOT available', true);
+            }
+            
+            log('=== DEBUG END ===');
+        }
+        
+        function testCollapse() {
+            clearResults();
+            log('🔽 Testing COLLAPSE...');
+            
+            if (!window.SidebarManager) {
+                log('❌ SidebarManager not available', true);
+                return;
+            }
+            
+            const sidebar = document.getElementById('sidebar');
+            log(`Before: width=${window.getComputedStyle(sidebar).width}, collapsed=${sidebar.classList.contains('collapsed')}`);
+            
+            window.SidebarManager.collapse();
+            
+            setTimeout(() => {
+                log(`After: width=${window.getComputedStyle(sidebar).width}, collapsed=${sidebar.classList.contains('collapsed')}`);
+                log(`Inline style: ${sidebar.style.width}`);
+            }, 100);
+        }
+        
+        function testExpand() {
+            clearResults();
+            log('🔼 Testing EXPAND...');
+            
+            if (!window.SidebarManager) {
+                log('❌ SidebarManager not available', true);
+                return;
+            }
+            
+            const sidebar = document.getElementById('sidebar');
+            log(`Before: width=${window.getComputedStyle(sidebar).width}, collapsed=${sidebar.classList.contains('collapsed')}`);
+            
+            window.SidebarManager.expand();
+            
+            setTimeout(() => {
+                log(`After: width=${window.getComputedStyle(sidebar).width}, collapsed=${sidebar.classList.contains('collapsed')}`);
+                log(`Inline style: ${sidebar.style.width}`);
+            }, 100);
+        }
+    </script>
+    
+    <div class="cmd">
+        <h3>Manual Commands (paste in Console):</h3>
+        <pre style="color: #22d3ee;">
+// 1. Check sidebar element
+const sidebar = document.getElementById('sidebar');
+console.log('Sidebar:', sidebar);
+
+// 2. Check all styles
+const computed = window.getComputedStyle(sidebar);
+console.table({
+    'Computed Width': computed.width,
+    'Inline Width': sidebar.style.width,
+    'Min Width': computed.minWidth,
+    'Max Width': computed.maxWidth,
+    'Has collapsed class': sidebar.classList.contains('collapsed')
+});
+
+// 3. Force set width manually
+sidebar.style.width = '80px';
+sidebar.style.minWidth = '80px';
+sidebar.style.maxWidth = '80px';
+console.log('After manual set:', window.getComputedStyle(sidebar).width);
+
+// 4. Toggle class
+sidebar.classList.toggle('collapsed');
+console.log('After toggle class:', window.getComputedStyle(sidebar).width);
+        </pre>
+    </div>
+    
+    <div class="cmd">
+        <h3>Quick Fix (paste in Console):</h3>
+        <pre style="color: #10b981;">
+// Force collapse dengan multiple methods
+const sidebar = document.getElementById('sidebar');
+sidebar.classList.add('collapsed');
+sidebar.style.setProperty('width', '80px', 'important');
+sidebar.style.setProperty('min-width', '80px', 'important');
+sidebar.style.setProperty('max-width', '80px', 'important');
+console.log('Forced to 80px:', window.getComputedStyle(sidebar).width);
+        </pre>
+    </div>
+</body>
+</html>
+

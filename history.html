@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="id" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SitSense — Riwayat</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind + DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons, Animations, Charts -->
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+
+    <!-- Notifications & Progress (optional) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress/nprogress.css" />
+    <script src="https://cdn.jsdelivr.net/npm/nprogress/nprogress.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js" defer></script>
+
+    <!-- Firebase (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js" defer></script>
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+    <link rel="stylesheet" href="./assets/css/theme.css" />
+
+    <style>
+      body { font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif; }
+      
+      /* Custom Gradient Button Styles */
+      .btn-gradient-primary {
+        background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #10b981 100%);
+        background-size: 200% 200%;
+        border: none;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3), 0 0 20px rgba(139, 92, 246, 0.2);
+        transform-origin: center;
+        will-change: background-position, box-shadow, transform;
+      }
+      
+      .btn-gradient-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.6s ease;
+        z-index: 1;
+      }
+      
+      .btn-gradient-primary:hover {
+        background-position: 100% 0;
+        box-shadow: 
+          0 8px 30px rgba(6, 182, 212, 0.6),
+          0 0 50px rgba(139, 92, 246, 0.5),
+          0 0 70px rgba(16, 185, 129, 0.4),
+          0 12px 40px rgba(0, 0, 0, 0.4);
+        transform: translateY(-2px) scale(1.02);
+      }
+      
+      .btn-gradient-primary:hover::before {
+        left: 100%;
+      }
+      
+      .btn-gradient-primary:active {
+        transform: translateY(0) scale(0.98);
+        transition: transform 0.1s;
+      }
+      
+      .btn-gradient-primary .relative {
+        position: relative;
+        z-index: 2;
+      }
+      
+      /* Outline Button dengan Gradient Border */
+      .btn-gradient-outline {
+        background: transparent;
+        border: 2px solid transparent;
+        color: #e7eefc;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+        will-change: box-shadow, transform;
+      }
+      
+      .btn-gradient-outline::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 2px;
+        background: linear-gradient(135deg, #06b6d4, #8b5cf6, #10b981);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        z-index: 0;
+      }
+      
+      .btn-gradient-outline::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2), rgba(16, 185, 129, 0.2));
+        transition: left 0.5s ease;
+        z-index: -1;
+      }
+      
+      .btn-gradient-outline:hover {
+        color: #ffffff;
+        box-shadow: 
+          0 0 25px rgba(6, 182, 212, 0.4),
+          0 0 50px rgba(139, 92, 246, 0.3),
+          inset 0 0 25px rgba(6, 182, 212, 0.15);
+        transform: translateY(-2px) scale(1.02);
+      }
+      
+      .btn-gradient-outline:hover::after {
+        left: 100%;
+      }
+      
+      .btn-gradient-outline:active {
+        transform: translateY(0) scale(0.98);
+        transition: transform 0.1s;
+      }
+      
+      .btn-gradient-outline .relative {
+        position: relative;
+        z-index: 2;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen text-slate-100">
+    <!-- ================= SIDEBAR ================= -->
+    <div id="sidebar-slot"></div>
+    <script>
+      (async () => {
+        const slot = document.getElementById('sidebar-slot');
+        slot.innerHTML = await (await fetch('./components/sidebar.html')).text();
+        // Render icons setelah sidebar dimuat
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      })();
+    </script>
+
+    <!-- ================= HEADER ================= -->
+    <header class="sticky top-0 z-40 border-b border-white/10 bg-[#0b1220]/90 backdrop-blur-xl md:ml-64">
+      <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <!-- Hamburger Menu (Mobile) -->
+          <button id="hamburgerMenu" class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors">
+            <i data-lucide="menu" class="h-6 w-6"></i>
+          </button>
+          <div class="flex items-center gap-3">
+            <img src="./assets/img/logo-sitsense.svg" alt="SitSense" class="h-7 w-auto hidden md:block" />
+            <span class="text-lg font-semibold tracking-tight">Riwayat</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 text-xs md:text-sm">
+          <span id="wifiStatus" class="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 px-3 py-1">
+            <i data-lucide="wifi" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Wi‑Fi: </span><span>—</span>
+          </span>
+          <span id="authStatus" class="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 px-3 py-1">
+            <i data-lucide="user-check" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Auth: </span><span>—</span>
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 px-3 py-1">
+            <i data-lucide="clock" class="h-4 w-4"></i>
+            <time id="clock" class="hidden sm:inline">--:--:--</time>
+            <time id="clockShort" class="sm:hidden">--:--</time>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= MAIN ================= -->
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-6 md:ml-64">
+      <!-- Filters -->
+      <section class="card glassy-card card-border" data-aos="fade-up">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <h2 class="card-title">Filter Riwayat</h2>
+            <div class="text-xs text-slate-400">Zona waktu browser</div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-5 gap-3">
+            <label class="form-control w-full">
+              <div class="label"><span class="label-text">Dari Tanggal</span></div>
+              <input id="fromDate" type="date" class="input input-bordered w-full" />
+            </label>
+            <label class="form-control w-full">
+              <div class="label"><span class="label-text">Sampai Tanggal</span></div>
+              <input id="toDate" type="date" class="input input-bordered w-full" />
+            </label>
+            <label class="form-control w-full">
+              <div class="label"><span class="label-text">Agregasi</span></div>
+              <select id="agg" class="select select-bordered w-full">
+                <option value="hour">Per Jam</option>
+                <option value="day" selected>Per Hari</option>
+                <option value="week">Per Minggu</option>
+              </select>
+            </label>
+            <label class="form-control w-full">
+              <div class="label"><span class="label-text">Rentang Cepat</span></div>
+              <div class="join w-full">
+                <button id="quickToday"   class="btn btn-outline join-item">Hari ini</button>
+                <button id="quick7"       class="btn btn-outline join-item">7H</button>
+                <button id="quick30"      class="btn btn-outline join-item">30H</button>
+              </div>
+            </label>
+            <div class="flex flex-col gap-2 pt-6 md:pt-8">
+              <button id="btnFetchHistory" class="btn btn-gradient-primary relative">
+                <span class="relative z-10">Terapkan</span>
+              </button>
+              <div class="flex gap-2">
+                <button id="btnExportCSV" class="btn btn-gradient-outline btn-sm relative">
+                  <span class="relative z-10">Export CSV</span>
+                </button>
+                <button id="btnPrint" class="btn btn-gradient-outline btn-sm relative">
+                  <span class="relative z-10">Cetak</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- KPI cards -->
+      <section class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div class="card glassy-card card-border" data-aos="fade-up"><div class="card-body">
+          <div class="flex items-center justify-between"><span>Total Durasi</span><i data-lucide="timer" class="h-5 w-5 text-cyan-300"></i></div>
+          <div class="text-2xl font-semibold mt-1" id="kpiTotalDuration">00:00:00</div>
+        </div></div>
+        <div class="card glassy-card card-border" data-aos="fade-up" data-aos-delay="40"><div class="card-body">
+          <div class="flex items-center justify-between"><span>Jumlah Sesi</span><i data-lucide="list-checks" class="h-5 w-5 text-emerald-300"></i></div>
+          <div class="text-2xl font-semibold mt-1" id="kpiSessions">0</div>
+        </div></div>
+        <div class="card glassy-card card-border" data-aos="fade-up" data-aos-delay="80"><div class="card-body">
+          <div class="flex items-center justify-between"><span>Rata Durasi/Sesi</span><i data-lucide="hourglass" class="h-5 w-5 text-yellow-300"></i></div>
+          <div class="text-2xl font-semibold mt-1" id="kpiAvgSession">00:00:00</div>
+        </div></div>
+        <div class="card glassy-card card-border" data-aos="fade-up" data-aos-delay="120"><div class="card-body">
+          <div class="flex items-center justify-between"><span>% Postur Baik</span><i data-lucide="smile" class="h-5 w-5 text-emerald-300"></i></div>
+          <div class="text-2xl font-semibold mt-1" id="kpiGoodPct">0%</div>
+        </div></div>
+        <div class="card glassy-card card-border" data-aos="fade-up" data-aos-delay="160"><div class="card-body">
+          <div class="flex items-center justify-between"><span>Peringatan</span><i data-lucide="bell" class="h-5 w-5 text-rose-400"></i></div>
+          <div class="text-2xl font-semibold mt-1" id="kpiAlerts">0</div>
+        </div></div>
+      </section>
+
+      <!-- Charts: history -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card glassy-card card-border" data-aos="fade-up">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <h3 class="card-title">Tekanan Rata-rata (sepanjang waktu)</h3>
+              <i data-lucide="line-chart" class="h-5 w-5 text-cyan-300"></i>
+            </div>
+            <div class="mt-4 h-[280px]">
+              <canvas id="historyPressure"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card glassy-card card-border" data-aos="fade-up" data-aos-delay="60">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <h3 class="card-title">Komposisi Kualitas Postur</h3>
+              <i data-lucide="pie-chart" class="h-5 w-5 text-emerald-300"></i>
+            </div>
+            <div class="mt-4 h-[280px]">
+              <canvas id="historyQuality"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sessions table -->
+      <section class="card glassy-card card-border" data-aos="fade-up">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <h3 class="card-title">Daftar Sesi Duduk</h3>
+            <div class="text-xs text-slate-400">Klik baris untuk detail</div>
+          </div>
+
+          <div class="overflow-x-auto mt-4">
+            <table class="table table-zebra">
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Mulai</th>
+                  <th>Selesai</th>
+                  <th>Durasi</th>
+                  <th>Skor Rata</th>
+                  <th>Baik</th>
+                  <th>Buruk</th>
+                  <th>Peringatan</th>
+                  <th>Catatan</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <tr>
+                  <td colspan="9">
+                    <div class="skeleton skeleton-line w-full h-8"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination / actions -->
+          <div class="mt-4 flex items-center justify-between text-sm">
+            <div class="text-slate-400" id="historySummary">Menampilkan 0 sesi</div>
+            <div class="join">
+              <button class="btn btn-outline btn-sm join-item" id="prevPage">Sebelumnya</button>
+              <button class="btn btn-outline btn-sm join-item" id="nextPage">Berikutnya</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="border-t border-white/10 py-6">
+      <div class="max-w-7xl mx-auto px-4 md:px-6 text-sm text-slate-400 flex items-center justify-between">
+        <p>© <span class="text-slate-200 font-medium">SitSense</span> — Project IoT</p>
+        <p>Riwayat</p>
+      </div>
+    </footer>
+
+    <!-- ================= Scripts ================= -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.AOS) AOS.init();
+        if (window.lucide) window.lucide.createIcons();
+        // Default rentang: 7 hari terakhir
+        const today = new Date();
+        const to = today.toISOString().slice(0,10);
+        const from = new Date(Date.now() - 6*24*3600*1000).toISOString().slice(0,10);
+        const fd = document.getElementById('fromDate');
+        const td = document.getElementById('toDate');
+        if (fd && !fd.value) fd.value = from;
+        if (td && !td.value) td.value = to;
+
+        // Quick range buttons (UI only; logic di history.js)
+        document.getElementById('quickToday')?.addEventListener('click', ()=>{
+          const t = new Date();
+          const d = t.toISOString().slice(0,10);
+          fd.value = d; td.value = d;
+        });
+        document.getElementById('quick7')?.addEventListener('click', ()=>{
+          const t = new Date();
+          td.value = t.toISOString().slice(0,10);
+          fd.value = new Date(Date.now()-6*24*3600*1000).toISOString().slice(0,10);
+        });
+        document.getElementById('quick30')?.addEventListener('click', ()=>{
+          const t = new Date();
+          td.value = t.toISOString().slice(0,10);
+          fd.value = new Date(Date.now()-29*24*3600*1000).toISOString().slice(0,10);
+        });
+
+        // Cetak
+        document.getElementById('btnPrint')?.addEventListener('click', ()=> window.print());
+      });
+    </script>
+
+    <!-- Module hooks (aktifkan saat file tersedia) -->
+    <script src="./assets/js/firebase-config.js"></script>
+    <script src="./assets/js/ui.js"></script>
+    <script src="./assets/js/charts.js"></script>
+    <script src="./assets/js/history.js"></script>
+  </body>
+</html>

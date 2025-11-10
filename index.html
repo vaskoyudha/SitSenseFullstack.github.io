@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="id" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SitSense — Dashboard</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind + DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons, Animations, Charts -->
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+
+    <!-- Notifications & Progress (optional, used later) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress/nprogress.css" />
+    <script src="https://cdn.jsdelivr.net/npm/nprogress/nprogress.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js" defer></script>
+
+    <!-- Firebase (compat for simplicity / already used in your project) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script>
+      // Inisialisasi Firebase langsung setelah SDK dimuat (seperti test connection)
+      (function() {
+        const firebaseConfig = {
+          apiKey: "AIzaSyCHpITmPUoKIb2niuh0G4vhJJJ0vBM2ijE",
+          authDomain: "esp32kursi-pintar.firebaseapp.com",
+          databaseURL: "https://esp32kursi-pintar-default-rtdb.firebaseio.com",
+          projectId: "esp32kursi-pintar",
+          storageBucket: "esp32kursi-pintar.appspot.com",
+          messagingSenderId: "265798521874",
+          appId: "1:265798521874:web:6097e5ae6ccf8ad683b4cb"
+        };
+        try {
+          if (!firebase.apps || firebase.apps.length === 0) {
+            firebase.initializeApp(firebaseConfig);
+          }
+          window.firebaseAuth = firebase.auth();
+          window.firebaseDb = firebase.database();
+          console.log('[Firebase] Initialized in HTML');
+        } catch (e) {
+          console.error('[Firebase] Initialization error:', e);
+        }
+      })();
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+    <link rel="stylesheet" href="./assets/css/theme.css" />
+    <style>
+      /* Custom Gradient Button Styles */
+      .btn-gradient-primary {
+        background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #10b981 100%);
+        background-size: 200% 200%;
+        border: none;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3), 0 0 20px rgba(139, 92, 246, 0.2);
+        transform-origin: center;
+        will-change: background-position, box-shadow, transform;
+      }
+      
+      .btn-gradient-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.6s ease;
+        z-index: 1;
+      }
+      
+      .btn-gradient-primary:hover {
+        background-position: 100% 0;
+        box-shadow: 
+          0 8px 30px rgba(6, 182, 212, 0.6),
+          0 0 50px rgba(139, 92, 246, 0.5),
+          0 0 70px rgba(16, 185, 129, 0.4),
+          0 12px 40px rgba(0, 0, 0, 0.4);
+        transform: translateY(-2px) scale(1.02);
+      }
+      
+      .btn-gradient-primary:hover::before {
+        left: 100%;
+      }
+      
+      .btn-gradient-primary:active {
+        transform: translateY(0) scale(0.98);
+        transition: transform 0.1s;
+      }
+      
+      .btn-gradient-primary .relative {
+        position: relative;
+        z-index: 2;
+      }
+    </style>
+    <script>
+      // Redirect ke home.html jika ini kunjungan pertama
+      (function() {
+        const hasVisitedHome = localStorage.getItem('sitsense-visited-home');
+        const currentPath = window.location.pathname.toLowerCase();
+        const isHomePage = currentPath.includes('home.html') || currentPath.endsWith('/home');
+        const isIndexPage = currentPath.includes('index.html') || currentPath.endsWith('/') || currentPath.endsWith('/newdesign');
+        
+        // Jika belum pernah ke home dan sedang di index, redirect ke home
+        if (!hasVisitedHome && isIndexPage && !isHomePage) {
+          window.location.href = './home.html';
+        }
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen text-slate-100">
+    <!-- ================= WELCOME SPLASH ================= -->
+    <div x-data="{ show: true }" x-init="setTimeout(()=>show=false, 2200)" x-show="show"
+         x-transition.opacity.duration.500ms
+         class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0b1220]">
+      <div class="relative w-[min(680px,92vw)] rounded-3xl p-8 md:p-10 text-center shadow-2xl overflow-hidden glassy-card" data-aos="zoom-in">
+        <div class="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-cyan-500/20 blur-3xl"></div>
+        <div class="pointer-events-none absolute -bottom-28 -right-16 w-80 h-80 rounded-full bg-emerald-400/20 blur-3xl"></div>
+
+        <!-- Logo placement -->
+        <img src="./assets/img/logo-sitsense.svg" alt="SitSense Logo" class="mx-auto h-16 md:h-20 w-auto mb-5" />
+
+        <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Selamat Datang di <span class="text-cyan-400">SitSense</span></h1>
+        <p class="mt-3 text-slate-300/90">Pemantau postur duduk cerdas. Lebih nyaman, sehat, dan produktif.</p>
+
+        <div class="mt-6 flex items-center justify-center gap-2 text-sm text-slate-300/80">
+          <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+            <i data-lucide="wifi" class="h-4 w-4"></i>
+            Wi‑Fi: menyiapkan…
+          </span>
+          <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+            <i data-lucide="badge-check" class="h-4 w-4"></i>
+            Auth: inisialisasi…
+          </span>
+        </div>
+
+        <div class="mt-7">
+          <button @click="show=false" class="btn btn-gradient-primary normal-case px-6 relative">
+            <span class="relative z-10">Masuk Dashboard</span>
+          </button>
+        </div>
+        <div class="mt-6 text-xs text-slate-400">© <span class="font-medium text-slate-300">SitSense</span> — Project IoT</div>
+      </div>
+    </div>
+
+    <!-- ================= SIDEBAR ================= -->
+     
+    <div id="sidebar-slot"></div>
+    
+    <script>
+      (async () => {
+        const slot = document.getElementById('sidebar-slot');
+        slot.innerHTML = await (await fetch('./components/sidebar.html')).text();
+        // Render icons setelah sidebar dimuat
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      })();
+    </script>
+
+    <!-- ================= HEADER ================= -->
+    <header class="sticky top-0 z-40 border-b border-white/10 bg-[#0b1220]/90 backdrop-blur-xl md:ml-64">
+      <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <!-- Hamburger Menu (Mobile) -->
+          <button id="hamburgerMenu" class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors">
+            <i data-lucide="menu" class="h-6 w-6"></i>
+          </button>
+          <div class="flex items-center gap-3">
+            <img src="./assets/img/logo-sitsense.svg" alt="SitSense" class="h-7 w-auto hidden md:block" />
+            <span class="text-lg font-semibold tracking-tight">Dashboard</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 text-xs md:text-sm">
+          <span id="wifiStatus" class="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 px-3 py-1">
+            <i data-lucide="wifi" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Wi‑Fi: </span><span>—</span>
+          </span>
+          <span id="authStatus" class="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 px-3 py-1">
+            <i data-lucide="user-check" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Auth: </span><span>—</span>
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 px-3 py-1">
+            <i data-lucide="clock" class="h-4 w-4"></i>
+            <time id="clock" class="hidden sm:inline">--:--:--</time>
+            <time id="clockShort" class="sm:hidden">--:--</time>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= MAIN ================= -->
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-6 relative z-10 md:ml-64">
+      <!-- ================= HERO SECTION ================= -->
+      <section class="hero-section relative overflow-hidden rounded-2xl glassy-card card-border p-8 md:p-12" data-aos="fade-up">
+        <!-- Background gradient effect -->
+        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-emerald-500/10 pointer-events-none"></div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div class="relative z-10">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <!-- Left: Content -->
+            <div>
+              <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">
+                Monitor Postur Duduk Anda
+              </h1>
+              <p class="text-lg text-slate-300/90 mb-6 leading-relaxed">
+                Sistem monitoring postur duduk cerdas yang membantu Anda menjaga kesehatan dan produktivitas. Pantau postur, durasi duduk, dan dapatkan rekomendasi real-time.
+              </p>
+              <div class="flex flex-wrap gap-3">
+                <button class="btn btn-primary normal-case px-6" onclick="document.getElementById('panel-parameters-slot')?.scrollIntoView({ behavior: 'smooth', block: 'start' })">
+                  <i data-lucide="play" class="h-4 w-4"></i>
+                  Mulai Monitoring
+                </button>
+                <button class="btn btn-outline normal-case px-6" onclick="if(window.location.pathname.includes('history')) { document.querySelector('[data-nav=history]')?.click(); } else { window.location.href='./history.html'; }">
+                  <i data-lucide="bar-chart-2" class="h-4 w-4"></i>
+                  Lihat Statistik
+                </button>
+              </div>
+            </div>
+            
+            <!-- Right: Quick Stats -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="glassy-card card-border p-4 text-center">
+                <div class="text-3xl font-bold text-cyan-300 mb-1" id="heroTotalDuration">00:00</div>
+                <div class="text-xs text-slate-400">Total Durasi Hari Ini</div>
+              </div>
+              <div class="glassy-card card-border p-4 text-center">
+                <div class="text-3xl font-bold text-emerald-300 mb-1" id="heroAvgScore">—</div>
+                <div class="text-xs text-slate-400">Skor Rata-rata</div>
+              </div>
+              <div class="glassy-card card-border p-4 text-center">
+                <div class="text-3xl font-bold text-yellow-300 mb-1" id="heroGoodPosture">0</div>
+                <div class="text-xs text-slate-400">Postur Baik</div>
+              </div>
+              <div class="glassy-card card-border p-4 text-center">
+                <div class="text-3xl font-bold text-rose-300 mb-1" id="heroBadPosture">0</div>
+                <div class="text-xs text-slate-400">Perlu Perbaikan</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick status cards -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card glassy-card card-border" data-aos="fade-up">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <h3 class="card-title text-base">Durasi Duduk</h3>
+              <i data-lucide="timer" class="h-5 w-5 text-cyan-300"></i>
+            </div>
+            <div class="mt-2 text-3xl font-bold"><span id="sitDuration">00:00:00</span></div>
+            <p class="text-xs text-slate-300/80">Ambang lembut: <span id="softThresholdLabel">30m</span> • ambang kuat: <span id="hardThresholdLabel">60m</span></p>
+          </div>
+        </div>
+        <div class="card glassy-card card-border" data-aos="fade-up" data-aos-delay="50">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <h3 class="card-title text-base">Skor Postur</h3>
+              <i data-lucide="activity" class="h-5 w-5 text-emerald-300"></i>
+            </div>
+            <div class="mt-2 flex items-end gap-2">
+              <div class="text-3xl font-bold" id="postureScore">—</div>
+              <div class="text-sm text-slate-300/80" id="postureLabel">menunggu data…</div>
+            </div>
+            <div class="mt-3">
+              <progress class="progress progress-info w-full" value="0" max="100" id="postureScoreBar"></progress>
+            </div>
+          </div>
+        </div>
+        <div class="card glassy-card card-border" data-aos="fade-up" data-aos-delay="100">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <h3 class="card-title text-base">Status Perangkat</h3>
+              <i data-lucide="cpu" class="h-5 w-5 text-violet-300"></i>
+            </div>
+            <ul class="mt-2 text-sm space-y-1">
+              <li>ESP32: <span id="deviceStatus" class="text-slate-200">—</span></li>
+              <li>IP: <span id="deviceIP" class="text-slate-200">—</span></li>
+              <li>Firmware: <span id="deviceFW" class="text-slate-200">—</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      
+
+        <div id="panel-parameters-slot"></div>
+        <script>
+        (async () => {
+            const slot = document.getElementById('panel-parameters-slot');
+            const res = await fetch('/components/panel-parameters.html');
+            slot.innerHTML = await res.text();
+            if (window.lucide) lucide.createIcons(); // render ikon setelah inject
+            
+            // Trigger update balance setelah panel-parameters dimuat
+            // Dispatch custom event untuk memberitahu app.js bahwa elemen baru sudah tersedia
+            window.dispatchEvent(new CustomEvent('panel-parameters-loaded'));
+        })();
+        </script>
+        
+
+
+        <!-- AI Advice panel -->
+        <div class="card glassy-card card-border" data-aos="fade-up" data-aos-delay="60">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <h3 class="card-title">Rekomendasi AI</h3>
+              <div class="tooltip" data-tip="Didukung Gemini + Google Voice">
+                <i data-lucide="sparkles" class="h-5 w-5 text-yellow-300"></i>
+              </div>
+            </div>
+            <div id="adviceText" class="mt-2 text-slate-300/90 text-sm leading-relaxed">
+              Menunggu data… rekomendasi personal akan muncul di sini.
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button id="btnRefreshAdvice" class="btn btn-outline btn-sm">Minta Rekomendasi</button>
+              <button id="btnListenAdvice" class="btn btn-primary btn-sm">Dengarkan</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card glassy-card card-border" data-aos="fade-up">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <h3 class="card-title">Tekanan vs Waktu</h3>
+              <i data-lucide="line-chart" class="h-5 w-5 text-cyan-300"></i>
+            </div>
+            <div class="mt-4">
+              <canvas id="chartPressure" height="140"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card glassy-card card-border" data-aos="fade-up" data-aos-delay="50">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <h3 class="card-title">Kualitas Postur (Baik vs Koreksi)</h3>
+              <i data-lucide="pie-chart" class="h-5 w-5 text-emerald-300"></i>
+            </div>
+            <div class="mt-4">
+              <canvas id="chartQuality" height="140"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Score Breakdown -->
+      <section class="card glassy-card card-border" data-aos="fade-up">
+        <div class="card-body">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="card-title">Rincian Skor Postur</h3>
+            <i data-lucide="clipboard-list" class="h-5 w-5 text-violet-300"></i>
+          </div>
+          <div class="space-y-4">
+            <!-- Back Score -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-semibold text-sm">Posisi Punggung</span>
+                <span class="font-bold text-lg text-cyan-300" id="backScore">0</span>
+              </div>
+              <progress class="progress progress-info w-full" value="0" max="100" id="backScoreBar"></progress>
+            </div>
+            <!-- Neck Score -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-semibold text-sm">Posisi Leher</span>
+                <span class="font-bold text-lg text-emerald-300" id="neckScore">0</span>
+              </div>
+              <progress class="progress progress-success w-full" value="0" max="100" id="neckScoreBar"></progress>
+            </div>
+            <!-- Pressure Score -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-semibold text-sm">Tekanan Duduk</span>
+                <span class="font-bold text-lg text-amber-300" id="pressureScore">0</span>
+              </div>
+              <progress class="progress progress-warning w-full" value="0" max="100" id="pressureScoreBar"></progress>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Today's Statistics -->
+      <section class="card glassy-card card-border" data-aos="fade-up">
+        <div class="card-body">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="card-title">Statistik Hari Ini</h3>
+            <i data-lucide="calendar-check" class="h-5 w-5 text-cyan-300"></i>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+              <div class="text-3xl font-bold" id="avgScore">—</div>
+              <div class="text-xs text-slate-400">Skor Rata-rata</div>
+            </div>
+            <div>
+              <div class="text-3xl font-bold" id="totalTime">—</div>
+              <div class="text-xs text-slate-400">Total Waktu</div>
+            </div>
+            <div>
+              <div class="text-3xl font-bold text-emerald-400" id="goodPostureCount">—</div>
+              <div class="text-xs text-slate-400">Postur Baik</div>
+            </div>
+            <div>
+              <div class="text-3xl font-bold text-red-400" id="badPostureCount">—</div>
+              <div class="text-xs text-slate-400">Postur Buruk</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Smart Recommendations & Session History -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card glassy-card card-border" data-aos="fade-up">
+          <div class="card-body">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="card-title">Rekomendasi Cerdas</h3>
+              <i data-lucide="lightbulb" class="h-5 w-5 text-yellow-300"></i>
+            </div>
+            <div id="recommendations" class="space-y-2">
+              <p class="text-sm text-slate-400">Menunggu data untuk memberikan rekomendasi...</p>
+            </div>
+          </div>
+        </div>
+        <div class="card glassy-card card-border" data-aos="fade-up" data-aos-delay="50">
+          <div class="card-body">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="card-title">Riwayat Sesi</h3>
+              <i data-lucide="history" class="h-5 w-5 text-violet-300"></i>
+            </div>
+            <div id="historyList" class="space-y-2 max-h-60 overflow-y-auto">
+               <p class="text-sm text-slate-400">Belum ada riwayat sesi.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="footer-slot"></div>
+<script>
+  (async () => {
+    const slot = document.getElementById('footer-slot');
+    const html = await (await fetch('/components/footer.html')).text();
+    slot.innerHTML = html;
+    if (window.lucide) window.lucide.createIcons();
+    const y = document.getElementById('footerYear'); if (y) y.textContent = new Date().getFullYear();
+  })();
+</script>
+
+<div id="modal-slot"></div>
+<script>
+  (async ()=> {
+    document.getElementById('modal-slot').innerHTML =
+      await (await fetch('/components/modal-detail.html')).text();
+    if (window.lucide) window.lucide.createIcons();
+  })();
+</script>
+
+
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="border-t border-white/10 py-6">
+      <div class="max-w-7xl mx-auto px-4 md:px-6 text-sm text-slate-400 flex items-center justify-between">
+        <p>© <span class="text-slate-200 font-medium">SitSense</span> — Project IoT</p>
+        <p>Versi UI: <span id="uiVersion">1.0.0</span></p>
+      </div>
+    </footer>
+
+    <!-- ================= AUDIO (alerts & assistant) ================= -->
+    <audio id="alertSoft" src="./assets/audio/alertSoft.wav" preload="auto"></audio>
+    <audio id="alertHard" src="./assets/audio/alertHard.wav" preload="auto"></audio>
+    <audio id="assistantChime" src="./assets/audio/assistantChime.wav" preload="auto"></audio>
+
+    <!-- ================= SCRIPTS (light inline boot only) ================= -->
+    <script>
+      // Init AOS & Lucide after page ready
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.AOS) AOS.init();
+        if (window.lucide) window.lucide.createIcons();
+      });
+
+      // Simple live clock
+      (function clock(){
+        const el = document.getElementById('clock');
+        if (!el) return; 
+        const pad = n => String(n).padStart(2,'0');
+        setInterval(()=>{
+          const d = new Date();
+          el.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        }, 1000);
+      })();
+    </script>
+
+    <!-- ================= PLACEHOLDER for future modules ================= -->
+    <!-- Uncomment these once files exist to avoid 404s during early setup -->
+    <!-- Sidebar Manager harus dimuat sebelum script lainnya -->
+    <script src="./assets/js/sidebar.js"></script>
+    <script src="./assets/js/ui.js"></script>
+  <script src="./assets/js/charts.js"></script>
+  <script src="./assets/js/posture-visual.js"></script>
+  <script src="./assets/js/alerts.js"></script>
+  <script src="./assets/js/ai-gemini.js"></script>
+  <script src="./assets/js/tts-google.js"></script>
+  <script src="./assets/js/app.js"></script>
+  <script src="./assets/js/modal-detail.js"></script>
+  <script src="./assets/js/welcome.js"></script>
+
+
+<script>
+  // Opsi 1 (proxy): window.__GEMINI_PROXY_URL = 'https://your-proxy.example.com/gemini';
+  // Opsi 2 (direct): SitSenseAI.setConfig({ apiKey: 'YOUR_GEMINI_API_KEY' });
+
+  // Minta saran:
+  (async () => {
+    const advice = await getPostureAdvice({
+      score: window.__postureScore || 62,
+      imbalance: window.__imbalance || { lr: 0.15, fb: 0.08 },
+      durationSec: (window.SitSenseAlerts?.getElapsedSeconds?.() || 0),
+      lastAlerts: 'soft'
+    });
+    // tampilkan di UI
+    if (window.showAdviceText) showAdviceText(advice.text);
+  })();
+</script>
+
+    <!-- <script src="./assets/js/tts-google.js"></script> -->
+    <!-- <script src="./assets/js/app.js"></script> -->
+     
+  </body>
+</html>

@@ -1,0 +1,77 @@
+<!-- Sidebar Navigation -->
+<aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-[#0b1220]/95 backdrop-blur-xl border-r border-white/10 z-50 transform -translate-x-full transition-all duration-300 ease-in-out md:translate-x-0 overflow-y-auto sidebar-collapsible">
+  <div class="flex flex-col h-full">
+    <!-- Logo & Brand -->
+    <div class="p-6 border-b border-white/10 relative">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3 sidebar-brand">
+          <img src="./assets/img/logo-sitsense.svg" alt="SitSense" class="h-8 w-auto sidebar-logo" />
+          <span class="text-xl font-bold tracking-tight sidebar-title">SitSense</span>
+        </div>
+        <!-- Toggle button (Desktop) -->
+        <button class="hidden md:flex p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer sidebar-toggle-btn" type="button" style="pointer-events: auto; z-index: 10;">
+          <i data-lucide="panel-left-close" class="h-5 w-5 sidebar-toggle-icon"></i>
+        </button>
+        <!-- Close button (Mobile only) -->
+        <button id="closeSidebar" class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-400 mt-1 sidebar-subtitle">Smart Posture Monitor</p>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+      <a href="./home.html" data-nav="home" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/5 hover:text-cyan-300">
+        <i data-lucide="home" class="h-5 w-5 flex-shrink-0"></i>
+        <span class="font-medium sidebar-nav-text">Home</span>
+      </a>
+      <a href="./index.html" data-nav="dashboard" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/5 hover:text-cyan-300">
+        <i data-lucide="layout-dashboard" class="h-5 w-5 flex-shrink-0"></i>
+        <span class="font-medium sidebar-nav-text">Dashboard</span>
+      </a>
+      <a href="./history.html" data-nav="history" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/5 hover:text-cyan-300">
+        <i data-lucide="history" class="h-5 w-5 flex-shrink-0"></i>
+        <span class="font-medium sidebar-nav-text">Riwayat</span>
+      </a>
+      <a href="./reports.html" data-nav="reports" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/5 hover:text-cyan-300">
+        <i data-lucide="file-text" class="h-5 w-5 flex-shrink-0"></i>
+        <span class="font-medium sidebar-nav-text">Laporan</span>
+      </a>
+      <a href="./settings.html" data-nav="settings" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/5 hover:text-cyan-300">
+        <i data-lucide="settings" class="h-5 w-5 flex-shrink-0"></i>
+        <span class="font-medium sidebar-nav-text">Pengaturan</span>
+      </a>
+      <a href="./about.html" data-nav="about" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/5 hover:text-cyan-300">
+        <i data-lucide="info" class="h-5 w-5 flex-shrink-0"></i>
+        <span class="font-medium sidebar-nav-text">Tentang</span>
+      </a>
+      <a href="./help.html" data-nav="help" class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/5 hover:text-cyan-300">
+        <i data-lucide="help-circle" class="h-5 w-5 flex-shrink-0"></i>
+        <span class="font-medium sidebar-nav-text">Bantuan</span>
+      </a>
+    </nav>
+
+    <!-- Quick Actions -->
+    <div class="p-4 border-t border-white/10 space-y-2">
+      <button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/5 hover:text-cyan-300">
+        <i data-lucide="user" class="h-5 w-5 flex-shrink-0"></i>
+        <span class="font-medium sidebar-nav-text">Profil</span>
+      </button>
+      <button id="themeToggleSidebar" onclick="window.SitSenseUI && SitSenseUI.toggleTheme()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/5 hover:text-cyan-300">
+        <i data-lucide="sun" class="h-5 w-5 flex-shrink-0"></i>
+        <span class="font-medium sidebar-nav-text">Tema</span>
+      </button>
+      <button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-white/5 hover:text-red-300 text-red-400">
+        <i data-lucide="log-out" class="h-5 w-5 flex-shrink-0"></i>
+        <span class="font-medium sidebar-nav-text">Keluar</span>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- Sidebar Overlay (Mobile) -->
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden"></div>
+
+<!-- Script untuk toggle sidebar sudah dipindah ke assets/js/sidebar.js -->
+

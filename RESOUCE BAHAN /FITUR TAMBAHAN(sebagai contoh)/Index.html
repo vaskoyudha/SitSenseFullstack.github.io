@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posture Intelligence System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #8b5cf6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #0f172a;
+      --dark-light: #1e293b;
+      --dark-lighter: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: rgba(148, 163, 184, 0.1);
+      --glow: rgba(99, 102, 241, 0.4);
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      background-attachment: fixed;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+      animation: rotate 30s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      padding: 30px 40px;
+      border-radius: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 80px var(--glow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .logo-text h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .status-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--dark-lighter);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status-badge.online::before {
+      background: var(--success);
+      box-shadow: 0 0 12px var(--success);
+    }
+
+    .status-badge.offline::before {
+      background: var(--danger);
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+
+    /* Glass Card */
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 40px rgba(99, 102, 241, 0.2);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    /* Device Settings */
+    .device-input-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .input-field {
+      flex: 1;
+      padding: 14px 20px;
+      background: var(--dark-lighter);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .input-field::placeholder {
+      color: var(--text-muted);
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hint::before {
+      content: 'ℹ️';
+    }
+
+    /* Hero Posture Status */
+    .hero-status {
+      text-align: center;
+      padding: 48px 0;
+      position: relative;
+    }
+
+    .posture-circle {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 32px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .posture-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 4px solid transparent;
+      animation: rotate-ring 3s linear infinite;
+    }
+
+    @keyframes rotate-ring {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .posture-ring.good {
+      border-top-color: var(--success);
+      border-right-color: var(--success);
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+    }
+
+    .posture-ring.warning {
+      border-top-color: var(--warning);
+      border-right-color: var(--warning);
+      box-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
+    }
+
+    .posture-ring.bad {
+      border-top-color: var(--danger);
+      border-right-color: var(--danger);
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.4);
+    }
+
+    .posture-avatar {
+      width: 180px;
+      height: 180px;
+      background: linear-gradient(135deg, var(--dark-lighter), var(--dark-light));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 90px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    .posture-score-display {
+      font-size: 72px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+
+    .posture-label-hero {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .posture-description {
+      font-size: 15px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Timer Display */
+    .timer-hero {
+      text-align: center;
+      padding: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timer-hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(100%); }
+    }
+
+    .timer-display {
+      font-size: 64px;
+      font-weight: 800;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 4px;
+      color: white;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+    }
+
+    .timer-label {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-top: 8px;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .alert-setting {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--dark-lighter);
+      border-radius: 12px;
+      margin-top: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .alert-setting input {
+      width: 80px;
+      padding: 10px;
+      background: var(--dark-light);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .alert-setting input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Sensor Cards */
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .sensor-card {
+      background: var(--dark-lighter);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .sensor-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+    }
+
+    .sensor-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .sensor-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .sensor-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .sensor-value-display {
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .sensor-unit {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Score Breakdown */
+    .score-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .score-item {
+      position: relative;
+    }
+
+    .score-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .score-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .score-label::before {
+      content: '';
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+
+    .score-value {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .score-bar-container {
+      height: 12px;
+      background: var(--dark-lighter);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 6px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      box-shadow: 0 0 16px rgba(99, 102, 241, 0.6);
+    }
+
+    .score-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(100%); }
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--dark-lighter);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--primary);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    /* Chart Container */
+    .chart-wrapper {
+      position: relative;
+      height: 350px;
+      padding: 20px;
+      background: var(--dark-lighter);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    /* Recommendations */
+    .recommendations-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .recommendation-item {
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .recommendation-item:hover {
+      transform: translateX(4px);
+    }
+
+    .recommendation-item.good {
+      background: rgba(16, 185, 129, 0.1);
+      border-left-color: var(--success);
+    }
+
+    .recommendation-item.warning {
+      background: rgba(245, 158, 11, 0.1);
+      border-left-color: var(--warning);
+    }
+
+    .recommendation-item.bad {
+      background: rgba(239, 68, 68, 0.1);
+      border-left-color: var(--danger);
+    }
+
+    .recommendation-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .recommendation-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    /* History */
+    .history-container {
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .history-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .history-container::-webkit-scrollbar-track {
+      background: var(--dark-lighter);
+      border-radius: 3px;
+    }
+
+    .history-container::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: var(--dark-lighter);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .history-item:hover {
+      border-color: var(--primary);
+      transform: translateX(4px);
+    }
+
+    .history-time {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .history-details {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .history-score {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .history-duration {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 32px;
+      margin-top: 48px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+
+      header {
+        padding: 20px;
+      }
+
+      .logo-text h1 {
+        font-size: 20px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .posture-circle {
+        width: 160px;
+        height: 160px;
+      }
+
+      .posture-avatar {
+        width: 130px;
+        height: 130px;
+        font-size: 60px;
+      }
+
+      .posture-score-display {
+        font-size: 48px;
+      }
+
+      .timer-display {
+        font-size: 42px;
+      }
+
+      .sensor-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="logo">
+        <div class="logo-icon">🪑</div>
+        <div class="logo-text">
+          <h1>Posture Intelligence</h1>
+          <p>Advanced Monitoring System</p>
+        </div>
+      </div>
+      <div class="status-bar">
+        <div id="wifiStatus" class="status-badge">WiFi</div>
+        <div id="authStatus" class="status-badge">Auth</div>
+        <div id="deviceStatus" class="status-badge">Device</div>
+      </div>
+    </header>
+
+    <!-- Device Settings -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">⚙️</div>
+        <h2 class="card-title">Device Configuration</h2>
+      </div>
+      <div class="device-input-group">
+        <input type="text" id="deviceId" class="input-field" placeholder="Enter Device ID or leave empty for auto-detection">
+        <button id="saveDeviceBtn" class="btn btn-primary">Connect Device</button>
+      </div>
+      <p class="hint">System will automatically detect the first available device from the database</p>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="grid grid-2">
+      <!-- Posture Status -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">📊</div>
+          <h2 class="card-title">Posture Analysis</h2>
+        </div>
+        <div class="hero-status">
+          <div class="posture-circle">
+            <div class="posture-ring good" id="postureRing"></div>
+            <div class="posture-avatar" id="postureAvatar">😊</div>
+          </div>
+          <div class="posture-score-display" id="postureScore">85</div>
+          <div class="posture-label-hero" id="postureLabel">Excellent Posture</div>
+          <div class="posture-description" id="postureDescription">Keep maintaining your posture!</div>
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon">⏱️</div>
+          <h2 class="card-title">Session Timer</h2>
+        </div>
+        <div class="timer-hero">
+          <div class="timer-display" id="timerDisplay">00:00:00</div>
+          <div class="timer-label">Sitting Duration</div>
+        </div>
+        <div class="timer-controls">
+          <button class="btn btn-primary" id="timerResetBtn">Reset Timer</button>
+        </div>
+        <div class="alert-setting">
+          <span style="color: var(--text); font-weight: 600;">Alert After</span>
+          <input type="number" id="alertMinutes" value="30" min="1" max="120">
+          <span style="color: var(--text); font-weight: 600;">minutes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sensor Data -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📡</div>
+        <h2 class="card-title">Real-time Sensor Data</h2>
+      </div>
+      <div class="sensor-grid">
+        <div class="sensor-card">
+          <div class="sensor-icon">📏</div>
+          <div class="sensor-label">Back Distance</div>
+          <div class="sensor-value-display" id="backValue">—</div>
+          <div class="sensor-unit">centimeters</div>
+        </div>
+        <div class="sensor-card">
+          <div class="sensor-icon">📐</div>
+          <div class="sensor-label">Neck Distance</div>
+          <div class="sensor-value-display" id="neckValue">—</div>
+          <div class="sensor-unit">centimeters</div>
+        </div>
+        <div class="sensor-card">
+          <div class="sensor-icon">⚖️</div>
+          <div class="sensor-label">Pressure Sensor</div>
+          <div class="sensor-value-display" id="fsrValue">—</div>
+          <div class="sensor-unit">force units</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Score Breakdown -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📈</div>
+        <h2 class="card-title">Posture Score Breakdown</h2>
+      </div>
+      <div class="score-list">
+        <div class="score-item">
+          <div class="score-header">
+            <div class="score-label">Back Position</div>
+            <div class="score-value" id="backScore">0</div>
+          </div>
+          <div class="score-bar-container">
+            <div class="score-bar-fill" id="backScoreBar" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="score-item">
+          <div class="score-header">
+            <div class="score-label">Neck Position</div>
+            <div class="score-value" id="neckScore">0</div>
+          </div>
+          <div class="score-bar-container">
+            <div class="score-bar-fill" id="neckScoreBar" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="score-item">
+          <div class="score-header">
+            <div class="score-label">Sitting Pressure</div>
+            <div class="score-value" id="pressureScore">0</div>
+          </div>
+          <div class="score-bar-container">
+            <div class="score-bar-fill" id="pressureScoreBar" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily Statistics -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📊</div>
+        <h2 class="card-title">Today's Statistics</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="avgScore">—</div>
+          <div class="stat-label">Avg Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalTime">—</div>
+          <div class="stat-label">Total Time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="goodPostureCount">—</div>
+          <div class="stat-label">Good Posture</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="badPostureCount">—</div>
+          <div class="stat-label">Bad Posture</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📉</div>
+        <h2 class="card-title">Posture Trend (Last 2 Minutes)</h2>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="postureChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">💡</div>
+        <h2 class="card-title">Smart Recommendations</h2>
+      </div>
+      <div class="recommendations-list" id="recommendations">
+        <div class="recommendation-item warning">
+          <div class="recommendation-icon">⏳</div>
+          <div class="recommendation-text">Waiting for sensor data to provide personalized recommendations...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session History -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📜</div>
+        <h2 class="card-title">Session History</h2>
+      </div>
+      <div class="history-container" id="historyList">
+        <p class="hint" style="text-align: center; padding: 40px;">No session history available yet</p>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2025 Posture Intelligence System • Advanced IoT Monitoring Technology</p>
+    </footer>
+  </div>
+
+  <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCHpITmPUoKIb2niuh0G4vhJJJ0vBM2ijE",
+      authDomain: "esp32kursi-pintar.firebaseapp.com",
+      databaseURL: "https://esp32kursi-pintar-default-rtdb.firebaseio.com",
+      projectId: "esp32kursi-pintar",
+      storageBucket: "esp32kursi-pintar.appspot.com",
+      messagingSenderId: "265798521874",
+      appId: "1:265798521874:web:6097e5ae6ccf8ad683b4cb",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // DOM Elements
+    const wifiStatus = document.getElementById('wifiStatus');
+    const authStatus = document.getElementById('authStatus');
+    const deviceStatus = document.getElementById('deviceStatus');
+    const deviceIdInput = document.getElementById('deviceId');
+    const saveDeviceBtn = document.getElementById('saveDeviceBtn');
+
+    const postureRing = document.getElementById('postureRing');
+    const postureAvatar = document.getElementById('postureAvatar');
+    const postureScore = document.getElementById('postureScore');
+    const postureLabel = document.getElementById('postureLabel');
+    const postureDescription = document.getElementById('postureDescription');
+
+    const backValue = document.getElementById('backValue');
+    const neckValue = document.getElementById('neckValue');
+    const fsrValue = document.getElementById('fsrValue');
+
+    const backScore = document.getElementById('backScore');
+    const neckScore = document.getElementById('neckScore');
+    const pressureScore = document.getElementById('pressureScore');
+    const backScoreBar = document.getElementById('backScoreBar');
+    const neckScoreBar = document.getElementById('neckScoreBar');
+    const pressureScoreBar = document.getElementById('pressureScoreBar');
+
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerResetBtn = document.getElementById('timerResetBtn');
+    const alertMinutes = document.getElementById('alertMinutes');
+
+    const avgScore = document.getElementById('avgScore');
+    const totalTime = document.getElementById('totalTime');
+    const goodPostureCount = document.getElementById('goodPostureCount');
+    const badPostureCount = document.getElementById('badPostureCount');
+
+    const recommendations = document.getElementById('recommendations');
+    const historyList = document.getElementById('historyList');
+
+    // State
+    let currentDeviceId = null;
+    let timerStart = null;
+    let timerInterval = null;
+    let lastAlertTime = 0;
+    let sessionData = {
+      scores: [],
+      startTime: Date.now(),
+      goodCount: 0,
+      badCount: 0,
+      sessions: []
+    };
+
+    // WiFi Status
+    function setWifiStatus(online) {
+      wifiStatus.textContent = online ? '✓ WiFi Online' : '✗ WiFi Offline';
+      wifiStatus.className = `status-badge ${online ? 'online' : 'offline'}`;
+    }
+    setWifiStatus(navigator.onLine);
+    window.addEventListener('online', () => setWifiStatus(true));
+    window.addEventListener('offline', () => setWifiStatus(false));
+
+    // Chart Setup
+    const ctx = document.getElementById('postureChart');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Posture Score',
+          data: [],
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: '#6366f1',
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            titleColor: '#f1f5f9',
+            bodyColor: '#f1f5f9',
+            borderColor: 'rgba(99, 102, 241, 0.3)',
+            borderWidth: 1,
+            padding: 12,
+            displayColors: false,
+            callbacks: {
+              label: function(context) {
+                return 'Score: ' + context.parsed.y;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              color: 'rgba(148, 163, 184, 0.1)',
+              drawBorder: false
+            },
+            ticks: {
+              color: '#94a3b8',
+              maxRotation: 0,
+              autoSkipPadding: 20
+            }
+          },
+          y: {
+            beginAtZero: true,
+            max: 100,
+            grid: {
+              color: 'rgba(148, 163, 184, 0.1)',
+              drawBorder: false
+            },
+            ticks: {
+              color: '#94a3b8',
+              callback: function(value) {
+                return value;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    function updateChart(score) {
+      const time = new Date().toLocaleTimeString('id-ID', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+      });
+      
+      chart.data.labels.push(time);
+      chart.data.datasets[0].data.push(score);
+      
+      if (chart.data.labels.length > 120) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+      }
+      
+      chart.update('none');
+    }
+
+    // Posture Scoring Algorithm
+    function calculatePostureScore(backDist, neckDist, fsrVal) {
+      let scores = {
+        back: 0,
+        neck: 0,
+        pressure: 0,
+        total: 0
+      };
+
+      // Back distance score (ideal: 5-15 cm)
+      if (backDist > 0 && backDist !== -1) {
+        if (backDist >= 5 && backDist <= 15) {
+          scores.back = 100;
+        } else if (backDist < 5) {
+          scores.back = Math.max(0, 100 - (5 - backDist) * 10);
+        } else {
+          scores.back = Math.max(0, 100 - (backDist - 15) * 5);
+        }
+      }
+
+      // Neck distance score (ideal: 30-45 cm)
+      if (neckDist > 0 && neckDist !== -1) {
+        if (neckDist >= 30 && neckDist <= 45) {
+          scores.neck = 100;
+        } else if (neckDist < 30) {
+          scores.neck = Math.max(0, 100 - (30 - neckDist) * 3);
+        } else {
+          scores.neck = Math.max(0, 100 - (neckDist - 45) * 2);
+        }
+      }
+
+      // Pressure score (ideal: 200-800)
+      if (fsrVal > 0) {
+        if (fsrVal >= 200 && fsrVal <= 800) {
+          scores.pressure = 100;
+        } else if (fsrVal < 200) {
+          scores.pressure = Math.max(0, (fsrVal / 200) * 100);
+        } else {
+          scores.pressure = Math.max(0, 100 - ((fsrVal - 800) / 10));
+        }
+      } else {
+        scores.pressure = 0;
+      }
+
+      // Weighted total
+      scores.total = Math.round(
+        (scores.back * 0.35) + 
+        (scores.neck * 0.40) + 
+        (scores.pressure * 0.25)
+      );
+
+      return scores;
+    }
+
+    // Update Posture Status
+    function updatePostureStatus(scores) {
+      const total = scores.total;
+      
+      if (total >= 80) {
+        postureRing.className = 'posture-ring good';
+        postureAvatar.textContent = '😊';
+        postureLabel.textContent = 'Excellent Posture';
+        postureLabel.style.color = '#10b981';
+        postureDescription.textContent = 'Keep maintaining your perfect posture!';
+        sessionData.goodCount++;
+      } else if (total >= 60) {
+        postureRing.className = 'posture-ring warning';
+        postureAvatar.textContent = '😐';
+        postureLabel.textContent = 'Fair Posture';
+        postureLabel.style.color = '#f59e0b';
+        postureDescription.textContent = 'Minor adjustments needed for better posture';
+      } else {
+        postureRing.className = 'posture-ring bad';
+        postureAvatar.textContent = '😟';
+        postureLabel.textContent = 'Poor Posture';
+        postureLabel.style.color = '#ef4444';
+        postureDescription.textContent = 'Please correct your posture immediately!';
+        sessionData.badCount++;
+      }
+
+      postureScore.textContent = total;
+
+      // Update score bars with animation
+      backScore.textContent = Math.round(scores.back);
+      neckScore.textContent = Math.round(scores.neck);
+      pressureScore.textContent = Math.round(scores.pressure);
+
+      setTimeout(() => {
+        backScoreBar.style.width = scores.back + '%';
+        neckScoreBar.style.width = scores.neck + '%';
+        pressureScoreBar.style.width = scores.pressure + '%';
+      }, 100);
+
+      updateChart(total);
+
+      sessionData.scores.push({
+        timestamp: Date.now(),
+        score: total
+      });
+
+      updateRecommendations(scores);
+      updateDailyStats();
+    }
+
+    // Update Recommendations
+    function updateRecommendations(scores) {
+      let recs = [];
+
+      if (scores.back < 70) {
+        recs.push({
+          type: 'bad',
+          icon: '🔴',
+          text: 'Back Position: Lean your back against the chair backrest at an ideal distance of 5-15 cm.'
+        });
+      } else if (scores.back >= 80) {
+        recs.push({
+          type: 'good',
+          icon: '✅',
+          text: 'Back Position: Your back position is excellent! Keep it up.'
+        });
+      }
+
+      if (scores.neck < 70) {
+        recs.push({
+          type: 'bad',
+          icon: '🔴',
+          text: 'Neck Position: Position your neck upright, avoid slouching or leaning too far forward.'
+        });
+      } else if (scores.neck >= 80) {
+        recs.push({
+          type: 'good',
+          icon: '✅',
+          text: 'Neck Position: Your neck position is ideal!'
+        });
+      }
+
+      if (scores.pressure < 50) {
+        recs.push({
+          type: 'bad',
+          icon: '🔴',
+          text: 'Sitting Pressure: Sit with more even weight distribution on the chair.'
+        });
+      } else if (scores.pressure >= 80) {
+        recs.push({
+          type: 'good',
+          icon: '✅',
+          text: 'Sitting Pressure: Your weight distribution is perfect!'
+        });
+      }
+
+      // Timer alert
+      if (timerStart) {
+        const elapsed = Date.now() - timerStart;
+        const minutes = Math.floor(elapsed / 60000);
+        if (minutes >= alertMinutes.value && Date.now() - lastAlertTime > 60000) {
+          recs.push({
+            type: 'warning',
+            icon: '⏰',
+            text: `You've been sitting for ${minutes} minutes. Consider taking a break and stretching!`
+          });
+          lastAlertTime = Date.now();
+          
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('Posture Reminder', {
+              body: `You've been sitting for ${minutes} minutes. Time to stretch!`,
+              icon: '🪑'
+            });
+          }
+        }
+      }
+
+      if (recs.length === 0) {
+        recs.push({
+          type: 'good',
+          icon: '🎉',
+          text: 'Perfect! All aspects of your posture are excellent. Keep maintaining this position!'
+        });
+      }
+
+      recommendations.innerHTML = recs.map(rec => `
+        <div class="recommendation-item ${rec.type}">
+          <div class="recommendation-icon">${rec.icon}</div>
+          <div class="recommendation-text">${rec.text}</div>
+        </div>
+      `).join('');
+    }
+
+    // Update Daily Statistics
+    function updateDailyStats() {
+      if (sessionData.scores.length === 0) {
+        avgScore.textContent = '—';
+        goodPostureCount.textContent = '0';
+        badPostureCount.textContent = '0';
+        return;
+      }
+
+      const avg = sessionData.scores.reduce((sum, s) => sum + s.score, 0) / sessionData.scores.length;
+      avgScore.textContent = Math.round(avg);
+
+      goodPostureCount.textContent = sessionData.goodCount;
+      badPostureCount.textContent = sessionData.badCount;
+
+      if (timerStart) {
+        const elapsed = Date.now() - timerStart;
+        const hours = Math.floor(elapsed / 3600000);
+        const minutes = Math.floor((elapsed % 3600000) / 60000);
+        totalTime.textContent = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+      } else {
+        totalTime.textContent = '—';
+      }
+    }
+
+    // Timer Functions
+    function startTimer() {
+      if (!timerStart) {
+        timerStart = Date.now();
+      }
+      
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+      
+      timerInterval = setInterval(() => {
+        const elapsed = Date.now() - timerStart;
+        const hours = Math.floor(elapsed / 3600000);
+        const minutes = Math.floor((elapsed % 3600000) / 60000);
+        const seconds = Math.floor((elapsed % 60000) / 1000);
+        
+        timerDisplay.textContent = 
+          `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+        updateDailyStats();
+      }, 1000);
+    }
+
+    function resetTimer() {
+      if (timerStart) {
+        const elapsed = Date.now() - timerStart;
+        const avgSessionScore = sessionData.scores.length > 0 
+          ? Math.round(sessionData.scores.reduce((sum, s) => sum + s.score, 0) / sessionData.scores.length)
+          : 0;
+        
+        sessionData.sessions.push({
+          startTime: timerStart,
+          endTime: Date.now(),
+          duration: elapsed,
+          averageScore: avgSessionScore
+        });
+        
+        updateSessionHistory();
+      }
+      
+      timerStart = null;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timerDisplay.textContent = '00:00:00';
+      
+      sessionData.scores = [];
+      sessionData.goodCount = 0;
+      sessionData.badCount = 0;
+    }
+
+    timerResetBtn.addEventListener('click', resetTimer);
+
+    // Update Session History
+    function updateSessionHistory() {
+      if (sessionData.sessions.length === 0) {
+        historyList.innerHTML = '<p class="hint" style="text-align: center; padding: 40px;">No session history available yet</p>';
+        return;
+      }
+
+      historyList.innerHTML = sessionData.sessions.slice().reverse().map(session => {
+        const duration = session.duration;
+        const hours = Math.floor(duration / 3600000);
+        const minutes = Math.floor((duration % 3600000) / 60000);
+        const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+        const time = new Date(session.startTime).toLocaleTimeString('id-ID', { 
+          hour: '2-digit', 
+          minute: '2-digit'
+        });
+
+        return `
+          <div class="history-item">
+            <div class="history-time">${time}</div>
+            <div class="history-details">
+              <div class="history-score">${session.averageScore}</div>
+              <div class="history-duration">${durationText}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Device Management
+    async function resolveDeviceId() {
+      let dev = localStorage.getItem('deviceId') || deviceIdInput.value.trim();
+      if (dev) return dev;
+
+      const snap = await db.ref('/devices').limitToFirst(1).get();
+      if (snap.exists()) {
+        const firstKey = Object.keys(snap.val())[0];
+        deviceIdInput.value = firstKey;
+        localStorage.setItem('deviceId', firstKey);
+        return firstKey;
+      }
+      return null;
+    }
+
+    let liveRef = null, serialLastRef = null, serialLogsRef = null;
+
+    function detachAll() {
+      if (liveRef) liveRef.off();
+      if (serialLastRef) serialLastRef.off();
+      if (serialLogsRef) serialLogsRef.off();
+    }
+
+    async function attachForDevice(deviceId) {
+      detachAll();
+      
+      if (!deviceId) {
+        deviceStatus.textContent = '✗ No Device';
+        deviceStatus.className = 'status-badge offline';
+        return;
+      }
+
+      currentDeviceId = deviceId;
+      deviceStatus.textContent = `✓ ${deviceId}`;
+      deviceStatus.className = 'status-badge online';
+
+      liveRef = db.ref(`/devices/${deviceId}/live`);
+
+      liveRef.on('value', (snap) => {
+        const v = snap.val();
+        if (!v) return;
+
+        const fsr = v.fsr ?? null;
+        const back = v.ultrasonic?.punggung_cm ?? null;
+        const neck = v.ultrasonic?.leher_cm ?? null;
+
+        // Update sensor displays
+        backValue.textContent = (back === -1 || back == null) ? '—' : Number(back).toFixed(1);
+        neckValue.textContent = (neck === -1 || neck == null) ? '—' : Number(neck).toFixed(1);
+        fsrValue.textContent = fsr ?? '—';
+
+        // Calculate and update scores
+        const scores = calculatePostureScore(
+          back === -1 ? 0 : back,
+          neck === -1 ? 0 : neck,
+          fsr
+        );
+        
+        updatePostureStatus(scores);
+
+        // Start timer if there's sitting pressure
+        if (fsr && fsr > 100) {
+          if (!timerStart) {
+            startTimer();
+          }
+        }
+      });
+    }
+
+    // Initialize
+    auth.signInAnonymously()
+      .then(async () => {
+        authStatus.textContent = '✓ Authenticated';
+        authStatus.className = 'status-badge online';
+        
+        const devId = await resolveDeviceId();
+        await attachForDevice(devId);
+
+        // Request notification permission
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        authStatus.textContent = '✗ Auth Failed';
+        authStatus.className = 'status-badge offline';
+      });
+
+    saveDeviceBtn.addEventListener('click', async () => {
+      const id = deviceIdInput.value.trim();
+      if (!id) return;
+      localStorage.setItem('deviceId', id);
+      await attachForDevice(id);
+    });
+  </script>
+</body>
+</html>

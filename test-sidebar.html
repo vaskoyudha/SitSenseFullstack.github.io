@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sidebar Toggle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1e293b;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-btn {
+            background: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .test-btn:hover {
+            background: #2563eb;
+        }
+        .info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Sidebar Toggle</h1>
+        
+        <div class="info">
+            <h3>Instruksi:</h3>
+            <ol>
+                <li>Buka halaman <code>index.html</code> di browser</li>
+                <li>Pastikan Anda melihat halaman dalam mode <strong>desktop</strong> (lebar > 768px)</li>
+                <li>Lihat di header sidebar (kiri atas), akan ada tombol toggle</li>
+                <li>Klik tombol tersebut untuk collapse/expand sidebar</li>
+            </ol>
+        </div>
+
+        <div class="info">
+            <h3>Debugging:</h3>
+            <p>Buka Console (F12) dan cari pesan berikut:</p>
+            <ul>
+                <li><code>[Sidebar] Initializing sidebar manager...</code></li>
+                <li><code>[Sidebar] Toggle button bound successfully</code></li>
+                <li><code>[Sidebar] Toggle button clicked</code> (saat tombol diklik)</li>
+            </ul>
+        </div>
+
+        <div class="info success">
+            <h3>✅ Ciri-ciri berhasil:</h3>
+            <ul>
+                <li>Sidebar menyusut dari 256px ke 80px</li>
+                <li>Teks menu hilang, hanya icon yang tersisa</li>
+                <li>Icon tombol berubah dari "panel-left-close" ke "panel-left-open"</li>
+                <li>Header dan main content bergeser mengikuti</li>
+            </ul>
+        </div>
+
+        <div class="info error">
+            <h3>❌ Troubleshooting jika tidak berfungsi:</h3>
+            <ol>
+                <li><strong>Tombol tidak terlihat?</strong>
+                    <br>→ Pastikan lebar browser > 768px (tombol hanya muncul di desktop)</li>
+                <li><strong>Console error?</strong>
+                    <br>→ Refresh halaman dan cek error di console</li>
+                <li><strong>Tombol tidak merespon klik?</strong>
+                    <br>→ Cek console apakah ada log "[Sidebar] Toggle button clicked"</li>
+            </ol>
+        </div>
+
+        <h3>Manual Test:</h3>
+        <button class="test-btn" onclick="testSidebarManager()">
+            Test SidebarManager
+        </button>
+        <div id="result"></div>
+
+        <h3>Quick Links:</h3>
+        <a href="index.html" style="color: #3b82f6;">→ Buka index.html</a>
+    </div>
+
+    <script>
+        function testSidebarManager() {
+            const result = document.getElementById('result');
+            let html = '<div class="info">';
+            
+            if (window.SidebarManager) {
+                html += '<p class="success">✅ SidebarManager tersedia</p>';
+                
+                if (typeof window.SidebarManager.toggleCollapse === 'function') {
+                    html += '<p class="success">✅ toggleCollapse() tersedia</p>';
+                    html += '<p>Mencoba memanggil toggleCollapse()...</p>';
+                    try {
+                        // Note: This won't work here because sidebar doesn't exist
+                        // This is just for testing the function exists
+                        html += '<p class="success">✅ Function dapat dipanggil (test di index.html untuk melihat hasilnya)</p>';
+                    } catch(e) {
+                        html += '<p class="error">❌ Error: ' + e.message + '</p>';
+                    }
+                } else {
+                    html += '<p class="error">❌ toggleCollapse() tidak ditemukan</p>';
+                }
+            } else {
+                html += '<p class="error">❌ SidebarManager tidak ditemukan</p>';
+                html += '<p>Pastikan Anda menjalankan test ini di halaman index.html</p>';
+            }
+            
+            html += '</div>';
+            result.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
+

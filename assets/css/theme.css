@@ -1,0 +1,79 @@
+/* =============================
+   SitSense — theme.css
+   Color tokens & theme variants
+   ============================= */
+
+:root {
+  /* Core tokens */
+  --color-bg: #0b1220;
+  --color-card: #121a2b;
+  --color-border: #21314f;
+  --color-text: #e7eefc;
+  --color-muted: #9fb0d3;
+  --color-accent: #5cc8ff;   /* cyan */
+  --color-accent-2: #79f2c0; /* emerald */
+
+  /* Chart helpers (read by charts.js later via getComputedStyle) */
+  --chart-grid-rgb: 255,255,255; /* white grid lines in dark */
+  --chart-grid-alpha: .08;
+  --chart-tick-rgb: 231,238,252;
+  --chart-tick-alpha: .65;
+}
+
+/* Dark theme (default) */
+[data-theme="dark"] {
+  --color-bg: #0b1220;
+  --color-card: #121a2b;
+  --color-border: #21314f;
+  --color-text: #e7eefc;
+  --color-muted: #9fb0d3;
+  --color-accent: #5cc8ff;
+  --color-accent-2: #79f2c0;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --color-bg: #f6f8fc;
+  --color-card: #ffffff;
+  --color-border: #dbe5ff;
+  --color-text: #0b1324;
+  --color-muted: #506384;
+  --color-accent: #0ea5e9;
+  --color-accent-2: #22c55e;
+  --chart-grid-rgb: 9,13,23;
+  --chart-grid-alpha: .08;
+  --chart-tick-rgb: 11,19,36; 
+  --chart-tick-alpha: .7;
+}
+
+/* Apply tokens */
+body { background: var(--color-bg); color: var(--color-text); }
+header, footer { background: color-mix(in oklab, var(--color-bg) 86%, black 14%); }
+
+/***** Components using tokens *****/
+.card.glassy-card { 
+  background: linear-gradient(180deg, color-mix(in oklab, #fff 6%, transparent), color-mix(in oklab, #fff 10%, transparent));
+  border-color: color-mix(in oklab, var(--color-text) 10%, transparent);
+}
+
+.border-token { border-color: var(--color-border) !important; }
+.text-muted { color: var(--color-muted); }
+.accent { color: var(--color-accent); }
+.bg-card { background: var(--color-card); }
+
+/* Buttons nuance (works on top of DaisyUI) */
+.btn-primary { box-shadow: 0 8px 22px rgba(92,200,255,.25); }
+.btn-primary:hover { box-shadow: 0 10px 28px rgba(92,200,255,.35); }
+.btn-outline { border-color: color-mix(in oklab, var(--color-text) 18%, transparent); }
+
+/* Progress tint */
+progress.progress { --progress-color: var(--color-accent); background: color-mix(in oklab, var(--color-text) 8%, transparent); }
+
+/* Header chips */
+.header-chip { background: color-mix(in oklab, var(--color-text) 6%, transparent); border: 1px solid color-mix(in oklab, var(--color-text) 12%, transparent); }
+
+/* Charts container background */
+.chart-surface { background: color-mix(in oklab, var(--color-bg) 90%, #000 10%); border: 1px solid color-mix(in oklab, var(--color-text) 10%, transparent); border-radius: 1rem; }
+
+/* Focus rings */
+:focus-visible { outline: 2px solid color-mix(in oklab, var(--color-accent) 80%, #fff 20%); outline-offset: 3px; border-radius: .5rem; }

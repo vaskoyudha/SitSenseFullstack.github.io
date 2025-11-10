@@ -1,0 +1,330 @@
+/* =============================
+   SitSense — styles.css
+   Custom utilities & visual polish
+   ============================= */
+
+/* Base tweaks */
+html, body { 
+  height: 100%; 
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+html {
+  background: linear-gradient(135deg, #0b1220 0%, #0f172a 50%, #0b1220 100%);
+  background-attachment: fixed;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+body { 
+  color: var(--color-text, #e7eefc); 
+  background: transparent;
+  min-height: 100vh;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Smooth theme switch */
+.theme-transition * { transition: background-color .25s ease, color .25s ease, border-color .25s ease, opacity .25s ease; }
+
+/* Glass / card visuals */
+.glassy-card {
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.06));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  cursor: pointer;
+  overflow: visible;
+}
+.glassy-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, 
+    rgba(34, 211, 238, 0.6) 0%,
+    rgba(52, 211, 153, 0.6) 50%,
+    rgba(34, 211, 238, 0.6) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+.glassy-card:hover {
+  border-color: transparent;
+  box-shadow: 
+    0 0 20px rgba(34, 211, 238, 0.4),
+    0 0 40px rgba(52, 211, 153, 0.3),
+    0 0 60px rgba(34, 211, 238, 0.2),
+    0 0 80px rgba(16, 185, 129, 0.15),
+    0 10px 30px rgba(0,0,0,.25);
+  transform: translateY(-2px);
+}
+.glassy-card:hover::before {
+  opacity: 1;
+}
+.card-border { 
+  border: 1px solid rgba(255,255,255,.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: visible;
+}
+.card-border::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, 
+    rgba(34, 211, 238, 0.6) 0%,
+    rgba(52, 211, 153, 0.6) 50%,
+    rgba(34, 211, 238, 0.6) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+.card-border:hover {
+  border-color: transparent;
+  box-shadow: 
+    0 0 15px rgba(34, 211, 238, 0.4),
+    0 0 30px rgba(52, 211, 153, 0.3),
+    0 0 45px rgba(34, 211, 238, 0.2),
+    0 0 60px rgba(16, 185, 129, 0.15),
+    0 10px 30px rgba(0,0,0,.25);
+}
+.card-border:hover::before {
+  opacity: 1;
+}
+.shadow-soft { box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+
+/* Navigation Styles */
+.nav-item {
+  color: rgba(231, 238, 252, 0.7);
+  text-decoration: none;
+}
+.nav-item.active,
+.nav-item[data-nav].active {
+  background: rgba(34, 211, 238, 0.1);
+  color: rgb(34, 211, 238);
+  border-left: 2px solid rgb(34, 211, 238);
+}
+
+/* Sidebar scrollbar */
+#sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+#sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+#sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+#sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Sidebar Collapsed State */
+#sidebar.collapsed {
+  width: 80px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+#sidebar.collapsed .sidebar-title,
+#sidebar.collapsed .sidebar-subtitle,
+#sidebar.collapsed .sidebar-nav-text {
+  display: none !important;
+}
+
+#sidebar.collapsed .nav-item {
+  justify-content: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  gap: 0 !important;
+}
+
+#sidebar.collapsed .sidebar-brand {
+  justify-content: center !important;
+  gap: 0 !important;
+}
+
+/* Prevent horizontal scroll in collapsed sidebar */
+#sidebar.collapsed > div {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 80px !important;
+}
+
+#sidebar.collapsed nav,
+#sidebar.collapsed > div > div:first-child,
+#sidebar.collapsed > div > div:last-child {
+  overflow-x: hidden !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  box-sizing: border-box !important;
+}
+
+#sidebar.collapsed > div > div:first-child {
+  padding: 1rem 0.5rem !important;
+}
+
+#sidebar.collapsed .nav-item,
+#sidebar.collapsed button {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+#sidebar.collapsed .sidebar-logo {
+  margin: 0 auto !important;
+}
+
+/* Additional overflow prevention */
+#sidebar.collapsed * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+#sidebar.collapsed i[data-lucide] {
+  margin: 0 auto !important;
+  flex-shrink: 0 !important;
+}
+
+/* Ensure no text wrapping issues */
+#sidebar.collapsed .nav-item span,
+#sidebar.collapsed button span {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 0 !important;
+  width: 0 !important;
+  display: none !important;
+}
+
+/* Header and Main margin adjustment for collapsed sidebar */
+@media (min-width: 768px) {
+  /* Desktop: sidebar always visible, adjust margins */
+  /* Default state: sidebar expanded (256px = w-64) */
+  header:not(.sidebar-collapsed),
+  main:not(.sidebar-collapsed) {
+    margin-left: 256px;
+  }
+  
+  /* Collapsed state: sidebar collapsed (80px = w-20) */
+  header.sidebar-collapsed,
+  main.sidebar-collapsed {
+    margin-left: 80px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Mobile: sidebar overlay behavior, no margin needed */
+  #sidebar {
+    width: 256px !important;
+  }
+  
+  header,
+  main {
+    margin-left: 0 !important;
+  }
+}
+
+/* Hero Section */
+.hero-section {
+  min-height: 300px;
+}
+
+/* Skeleton loader */
+.skeleton { position: relative; overflow: hidden; background: rgba(255,255,255,.06); border-radius: .5rem; }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+  animation: shimmer 1.25s infinite;
+}
+.skeleton-line { height: 12px; }
+.skeleton-pill { height: 28px; border-radius: 9999px; }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+
+/* Heatmap canvas treatment */
+#heatmapCanvas { image-rendering: optimizeQuality; filter: contrast(115%) saturate(118%); }
+/* Optional mask if you want to clip the heatmap to a shape */
+.heatmap--masked { 
+  -webkit-mask-image: url('/assets/img/heatmap-mask.svg');
+  mask-image: url('/assets/img/heatmap-mask.svg');
+  -webkit-mask-size: contain; mask-size: contain;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center;
+}
+
+/* Silhouette styling */
+#silhouette { filter: drop-shadow(0 10px 16px rgba(0,0,0,.35)); }
+
+/* Balance bars */
+#balanceLRFill { 
+  transition: width .35s ease, background .3s ease; 
+  background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 50%, #22d3ee 100%);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+}
+#balanceFBFill { 
+  transition: width .35s ease, background .3s ease; 
+  background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+}
+
+/* Advice panel */
+#adviceText { min-height: 72px; }
+
+
+/* Progress (DaisyUI override light touch) */
+progress.progress { --progress-color: var(--color-accent, #5cc8ff); }
+progress.progress::-webkit-progress-value { background: var(--progress-color); }
+progress.progress::-moz-progress-bar { background: var(--progress-color); }
+
+/* Badges by status */
+.badge-status { border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.06); }
+.badge-status[data-status="good"] { color: #10b981; border-color: rgba(16,185,129,.35); background: rgba(16,185,129,.10); }
+.badge-status[data-status="warn"] { color: #f59e0b; border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.10); }
+.badge-status[data-status="bad"]  { color: #ef4444; border-color: rgba(239,68,68,.35);  background: rgba(239,68,68,.10); }
+
+/* Utility helpers */
+.blur-edge { mask-image: radial-gradient(closest-side, #000, transparent); }
+.text-gradient {
+  background: linear-gradient(90deg, var(--color-accent,#5cc8ff), var(--color-accent-2,#79f2c0));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* AOS fine-tune */
+[data-aos] { will-change: transform, opacity; }
+
+/* Accessibility helpers */
+.visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; }
+
+

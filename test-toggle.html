@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Toggle</title>
+</head>
+<body>
+    <h1>Quick Test</h1>
+    <p>Buka console dan jalankan perintah ini:</p>
+    <pre style="background: #333; color: #0f0; padding: 10px; border-radius: 5px;">
+// Test 1: Cek apakah SidebarManager ada
+window.SidebarManager
+
+// Test 2: Coba panggil toggleCollapse secara manual
+window.SidebarManager.toggleCollapse()
+
+// Test 3: Cek state
+window.SidebarManager.isCollapsed
+
+// Test 4: Cek apakah sidebar element ada
+document.getElementById('sidebar')
+
+// Test 5: Cek apakah tombol ada
+document.querySelector('.sidebar-toggle-btn')
+
+// Test 6: Trigger click pada tombol
+document.querySelector('.sidebar-toggle-btn').click()
+    </pre>
+</body>
+</html>
+

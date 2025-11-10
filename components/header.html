@@ -1,0 +1,55 @@
+<!-- components/header.html -->
+<header class="sticky top-0 z-40 border-b border-white/10 bg-[#0b1220]/80 backdrop-blur-xl">
+  <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+    <!-- Brand -->
+    <a href="./index.html" class="inline-flex items-center gap-2 hover:opacity-90">
+      <img src="./assets/img/logo-sitsense.svg" alt="SitSense" class="h-7 w-auto" />
+      <span class="text-lg font-semibold tracking-tight">SitSense</span>
+    </a>
+
+    <!-- Nav -->
+    <nav class="hidden md:flex items-center gap-2 text-xs">
+      <a href="./index.html"   data-nav="dashboard" class="header-chip px-3 py-1 rounded-full">Dashboard</a>
+      <a href="./history.html"  data-nav="history"   class="header-chip px-3 py-1 rounded-full">Riwayat</a>
+      <a href="./settings.html" data-nav="settings"  class="header-chip px-3 py-1 rounded-full">Pengaturan</a>
+      <button id="themeToggleHeader" onclick="window.SitSenseUI && SitSenseUI.toggleTheme()" class="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1">
+        <i data-lucide="sun" class="h-4 w-4"></i>
+        <span>Mode</span>
+      </button>
+    </nav>
+
+    <!-- Status chips -->
+    <div class="hidden md:flex items-center gap-2 text-xs">
+      <span id="wifiStatus" class="badge inline-flex items-center gap-1 bg-emerald-400/10 border border-emerald-400/30 text-emerald-300">
+        <i data-lucide="wifi" class="h-3.5 w-3.5"></i>
+        <span>Wi‑Fi: —</span>
+      </span>
+      <span id="authStatus" class="badge inline-flex items-center gap-1 bg-white/5 border border-white/10">
+        <i data-lucide="user" class="h-3.5 w-3.5"></i>
+        <span>Auth: —</span>
+      </span>
+    </div>
+  </div>
+</header>
+
+<!-- Tips penggunaan:
+1) Sisipkan komponen ini secara dinamis:
+   <div id="header-slot"></div>
+   <script>
+     (async () => {
+       const slot = document.getElementById('header-slot');
+       const html = await (await fetch('/components/header.html')).text();
+       slot.innerHTML = html;
+       if (window.lucide) window.lucide.createIcons();
+     })();
+   </script>
+2) Pengaktifan state aktif pada nav bisa dikerjakan di halaman:
+   const path = location.pathname.toLowerCase();
+   document.querySelectorAll('a[data-nav]').forEach(a => {
+     const k = a.getAttribute('data-nav');
+     const ok = (k==='dashboard' && path.endsWith('/index.html'))
+             || (k==='history'   && path.endsWith('/history.html'))
+             || (k==='settings'  && path.endsWith('/settings.html'));
+     if (ok) a.classList.add('border','border-cyan-400/40','text-cyan-300');
+   });
+-->

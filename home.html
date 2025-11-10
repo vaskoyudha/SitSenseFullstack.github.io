@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="id" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SitSense — Smart Posture Monitor</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind + DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons, Animations -->
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
+
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+    <link rel="stylesheet" href="./assets/css/theme.css" />
+    <style>
+      /* Custom Gradient Button Styles */
+      .btn-gradient-primary {
+        background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #10b981 100%);
+        background-size: 200% 200%;
+        border: none;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3), 0 0 20px rgba(139, 92, 246, 0.2);
+        transform-origin: center;
+        will-change: background-position, box-shadow, transform;
+      }
+      
+      .btn-gradient-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.6s ease;
+        z-index: 1;
+      }
+      
+      .btn-gradient-primary:hover {
+        background-position: 100% 0;
+        box-shadow: 
+          0 8px 30px rgba(6, 182, 212, 0.6),
+          0 0 50px rgba(139, 92, 246, 0.5),
+          0 0 70px rgba(16, 185, 129, 0.4),
+          0 12px 40px rgba(0, 0, 0, 0.4);
+        transform: translateY(-2px) scale(1.02);
+      }
+      
+      .btn-gradient-primary:hover::before {
+        left: 100%;
+      }
+      
+      .btn-gradient-primary:active {
+        transform: translateY(0) scale(0.98);
+        transition: transform 0.1s;
+      }
+      
+      .btn-gradient-primary .relative {
+        position: relative;
+        z-index: 2;
+      }
+      
+      /* Outline Button dengan Gradient Border */
+      .btn-gradient-outline {
+        background: transparent;
+        border: 2px solid transparent;
+        color: #e7eefc;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+        will-change: box-shadow, transform;
+      }
+      
+      .btn-gradient-outline::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 2px;
+        background: linear-gradient(135deg, #06b6d4, #8b5cf6, #10b981);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        z-index: 0;
+      }
+      
+      .btn-gradient-outline::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2), rgba(16, 185, 129, 0.2));
+        transition: left 0.5s ease;
+        z-index: -1;
+      }
+      
+      .btn-gradient-outline:hover {
+        color: #ffffff;
+        box-shadow: 
+          0 0 25px rgba(6, 182, 212, 0.4),
+          0 0 50px rgba(139, 92, 246, 0.3),
+          inset 0 0 25px rgba(6, 182, 212, 0.15);
+        transform: translateY(-2px) scale(1.02);
+      }
+      
+      .btn-gradient-outline:hover::after {
+        left: 100%;
+      }
+      
+      .btn-gradient-outline:active {
+        transform: translateY(0) scale(0.98);
+        transition: transform 0.1s;
+      }
+      
+      .btn-gradient-outline .relative {
+        position: relative;
+        z-index: 2;
+      }
+      
+      /* Floating Images Animation */
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0px) translateX(0px) rotate(0deg);
+        }
+        33% {
+          transform: translateY(-20px) translateX(10px) rotate(5deg);
+        }
+        66% {
+          transform: translateY(10px) translateX(-10px) rotate(-5deg);
+        }
+      }
+      
+      @keyframes float-reverse {
+        0%, 100% {
+          transform: translateY(0px) translateX(0px) rotate(0deg);
+        }
+        33% {
+          transform: translateY(15px) translateX(-15px) rotate(-5deg);
+        }
+        66% {
+          transform: translateY(-15px) translateX(15px) rotate(5deg);
+        }
+      }
+      
+      @keyframes pulse-glow {
+        0%, 100% {
+          opacity: 0.6;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.1);
+        }
+      }
+      
+      .floating-element {
+        position: absolute;
+        pointer-events: none;
+        animation: float 6s ease-in-out infinite;
+        filter: drop-shadow(0 10px 20px rgba(6, 182, 212, 0.3));
+      }
+      
+      .floating-element.reverse {
+        animation: float-reverse 8s ease-in-out infinite;
+      }
+      
+      .floating-element.slow {
+        animation-duration: 10s;
+      }
+      
+      .floating-element.fast {
+        animation-duration: 4s;
+      }
+      
+      .floating-glow {
+        animation: pulse-glow 3s ease-in-out infinite;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen text-slate-100 bg-[#0b1220]">
+    <!-- ================= NAVIGATION BAR ================= -->
+    <nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#0b1220]/90 backdrop-blur-xl">
+      <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <img src="./assets/img/logo-sitsense.svg" alt="SitSense" class="h-8 w-auto" />
+          <span class="text-xl font-bold tracking-tight">SitSense</span>
+        </div>
+        <div class="hidden md:flex items-center gap-6">
+          <!-- Features Dropdown -->
+          <div class="relative group">
+            <a href="#features" class="text-slate-300 hover:text-cyan-300 transition-colors flex items-center gap-1 cursor-pointer">
+              Features
+              <i data-lucide="chevron-down" class="h-4 w-4"></i>
+            </a>
+            <div class="absolute top-full left-0 mt-2 w-64 rounded-lg p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 pointer-events-none group-hover:pointer-events-auto bg-[#0b1220]/70 backdrop-blur-xl border border-white/20 shadow-2xl">
+              <div class="space-y-3">
+                <a href="#features" class="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group/item">
+                  <div class="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="activity" class="h-5 w-5 text-cyan-300"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-sm mb-1 group-hover/item:text-cyan-300 transition-colors">Monitoring Real-time</div>
+                    <div class="text-xs text-slate-400">Pantau postur duduk Anda secara langsung dengan sensor cerdas</div>
+                  </div>
+                </a>
+                <a href="#features" class="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group/item">
+                  <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="sparkles" class="h-5 w-5 text-purple-300"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-sm mb-1 group-hover/item:text-purple-300 transition-colors">AI Recommendations</div>
+                    <div class="text-xs text-slate-400">Dapatkan saran personal dari AI untuk postur yang lebih baik</div>
+                  </div>
+                </a>
+                <a href="#features" class="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group/item">
+                  <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="bar-chart-2" class="h-5 w-5 text-emerald-300"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-sm mb-1 group-hover/item:text-emerald-300 transition-colors">Analytics Lengkap</div>
+                    <div class="text-xs text-slate-400">Lihat statistik dan riwayat postur Anda secara detail</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Solutions Dropdown -->
+          <div class="relative group">
+            <a href="#solutions" class="text-slate-300 hover:text-cyan-300 transition-colors flex items-center gap-1 cursor-pointer">
+              Solutions
+              <i data-lucide="chevron-down" class="h-4 w-4"></i>
+            </a>
+            <div class="absolute top-full left-0 mt-2 w-64 rounded-lg p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 pointer-events-none group-hover:pointer-events-auto bg-[#0b1220]/70 backdrop-blur-xl border border-white/20 shadow-2xl">
+              <div class="space-y-3">
+                <a href="#solutions" class="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group/item">
+                  <div class="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="user" class="h-5 w-5 text-cyan-300"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-sm mb-1 group-hover/item:text-cyan-300 transition-colors">Untuk Individu</div>
+                    <div class="text-xs text-slate-400">Solusi personal untuk menjaga postur duduk sehat di rumah atau kantor</div>
+                  </div>
+                </a>
+                <a href="#solutions" class="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group/item">
+                  <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="users" class="h-5 w-5 text-purple-300"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-sm mb-1 group-hover/item:text-purple-300 transition-colors">Untuk Tim</div>
+                    <div class="text-xs text-slate-400">Kelola kesehatan postur seluruh tim dengan dashboard terpusat</div>
+                  </div>
+                </a>
+                <a href="#solutions" class="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group/item">
+                  <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="stethoscope" class="h-5 w-5 text-emerald-300"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-sm mb-1 group-hover/item:text-emerald-300 transition-colors">Untuk Klinik</div>
+                    <div class="text-xs text-slate-400">Solusi profesional untuk klinik fisioterapi dan kesehatan</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Learn Dropdown -->
+          <div class="relative group">
+            <a href="#learn" class="text-slate-300 hover:text-cyan-300 transition-colors flex items-center gap-1 cursor-pointer">
+              Learn
+              <i data-lucide="chevron-down" class="h-4 w-4"></i>
+            </a>
+            <div class="absolute top-full left-0 mt-2 w-64 rounded-lg p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2 pointer-events-none group-hover:pointer-events-auto bg-[#0b1220]/70 backdrop-blur-xl border border-white/20 shadow-2xl">
+              <div class="space-y-3">
+                <a href="./help.html" class="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group/item">
+                  <div class="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="book-open" class="h-5 w-5 text-cyan-300"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-sm mb-1 group-hover/item:text-cyan-300 transition-colors">Panduan Pengguna</div>
+                    <div class="text-xs text-slate-400">Pelajari cara menggunakan SitSense dengan efektif dari setup hingga interpretasi data</div>
+                  </div>
+                </a>
+                <a href="./about.html" class="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group/item">
+                  <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="graduation-cap" class="h-5 w-5 text-purple-300"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-sm mb-1 group-hover/item:text-purple-300 transition-colors">Tips Postur Sehat</div>
+                    <div class="text-xs text-slate-400">Pelajari teknik dan tips untuk menjaga postur duduk yang baik</div>
+                  </div>
+                </a>
+                <a href="#" class="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group/item">
+                  <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="video" class="h-5 w-5 text-emerald-300"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-sm mb-1 group-hover/item:text-emerald-300 transition-colors">Video Tutorial</div>
+                    <div class="text-xs text-slate-400">Tonton video tutorial step-by-step untuk memahami fitur-fitur SitSense</div>
+                  </div>
+                </a>
+                <a href="./help.html" class="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors group/item">
+                  <div class="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="help-circle" class="h-5 w-5 text-yellow-300"></i>
+                  </div>
+                  <div>
+                    <div class="font-semibold text-sm mb-1 group-hover/item:text-yellow-300 transition-colors">FAQ</div>
+                    <div class="text-xs text-slate-400">Temukan jawaban untuk pertanyaan yang sering diajukan</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <a href="#for-teams" class="text-slate-300 hover:text-cyan-300 transition-colors">For Teams</a>
+          <a href="#for-developers" class="text-slate-300 hover:text-cyan-300 transition-colors">For Developers</a>
+          <a href="#contact" class="text-slate-300 hover:text-cyan-300 transition-colors">Contact</a>
+        </div>
+        <a href="./index.html" class="btn btn-gradient-primary normal-case px-6 relative">
+          <span class="relative z-10">Launch App</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- ================= JUMBOTRON SECTION ================= -->
+    <section id="jumbotron" class="relative overflow-hidden py-20 md:py-32 flex items-center pt-24" data-aos="fade-up">
+      <!-- Background gradient effect -->
+      <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/20 via-purple-500/20 to-emerald-500/20 pointer-events-none"></div>
+      <div class="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <!-- Pattern overlay -->
+      <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 40px 40px;"></div>
+      
+      <!-- Floating Decorative Elements -->
+      <!-- Top Left Floating Icon -->
+      <div class="floating-element slow" style="top: 10%; left: 5%; animation-delay: 0s;">
+        <div class="w-20 h-20 md:w-24 md:h-24 rounded-2xl glassy-card card-border flex items-center justify-center floating-glow" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2));">
+          <i data-lucide="activity" class="h-10 w-10 md:h-12 md:w-12 text-cyan-300"></i>
+        </div>
+      </div>
+      
+      <!-- Top Right Floating Icon -->
+      <div class="floating-element reverse fast" style="top: 15%; right: 8%; animation-delay: 1s;">
+        <div class="w-16 h-16 md:w-20 md:h-20 rounded-full glassy-card card-border flex items-center justify-center floating-glow" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(16, 185, 129, 0.2));">
+          <i data-lucide="monitor" class="h-8 w-8 md:h-10 md:w-10 text-purple-300"></i>
+        </div>
+      </div>
+      
+      <!-- Middle Left Floating Icon -->
+      <div class="floating-element" style="top: 50%; left: 3%; animation-delay: 2s;">
+        <div class="w-16 h-16 md:w-20 md:h-20 rounded-xl glassy-card card-border flex items-center justify-center floating-glow" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));">
+          <i data-lucide="zap" class="h-8 w-8 md:h-10 md:w-10 text-emerald-300"></i>
+        </div>
+      </div>
+      
+      <!-- Middle Right Floating Icon -->
+      <div class="floating-element reverse slow" style="top: 45%; right: 5%; animation-delay: 1.5s;">
+        <div class="w-20 h-20 md:w-28 md:h-28 rounded-2xl glassy-card card-border flex items-center justify-center floating-glow" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(139, 92, 246, 0.25));">
+          <i data-lucide="smartphone" class="h-10 w-10 md:h-14 md:w-14 text-cyan-400"></i>
+        </div>
+      </div>
+      
+      <!-- Bottom Left Floating Icon -->
+      <div class="floating-element fast" style="bottom: 15%; left: 8%; animation-delay: 0.5s;">
+        <div class="w-16 h-16 md:w-20 md:h-20 rounded-full glassy-card card-border flex items-center justify-center floating-glow" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(16, 185, 129, 0.2));">
+          <i data-lucide="database" class="h-8 w-8 md:h-10 md:w-10 text-purple-300"></i>
+        </div>
+      </div>
+      
+      <!-- Bottom Right Floating Icon -->
+      <div class="floating-element reverse" style="bottom: 10%; right: 3%; animation-delay: 2.5s;">
+        <div class="w-16 h-16 md:w-20 md:h-20 rounded-xl glassy-card card-border flex items-center justify-center floating-glow" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));">
+          <i data-lucide="wifi" class="h-8 w-8 md:h-10 md:w-10 text-emerald-300"></i>
+        </div>
+      </div>
+      
+      <!-- Center Left Floating Icon (Small) -->
+      <div class="floating-element slow" style="top: 30%; left: 12%; animation-delay: 3s;">
+        <div class="w-12 h-12 md:w-16 md:h-16 rounded-lg glassy-card card-border flex items-center justify-center floating-glow" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(139, 92, 246, 0.15));">
+          <i data-lucide="cpu" class="h-6 w-6 md:h-8 md:w-8 text-cyan-200"></i>
+        </div>
+      </div>
+      
+      <!-- Center Right Floating Icon (Small) -->
+      <div class="floating-element reverse fast" style="top: 35%; right: 12%; animation-delay: 1.8s;">
+        <div class="w-12 h-12 md:w-16 md:h-16 rounded-lg glassy-card card-border flex items-center justify-center floating-glow" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(16, 185, 129, 0.15));">
+          <i data-lucide="signal" class="h-6 w-6 md:h-8 md:w-8 text-purple-200"></i>
+        </div>
+      </div>
+      
+      <div class="relative z-10 text-center max-w-4xl mx-auto w-full px-4 py-12">
+        <!-- Logo -->
+        <div class="mb-6 flex justify-center" data-aos="zoom-in" data-aos-delay="100">
+          <img src="./assets/img/logo-sitsense.svg" alt="SitSense Logo" class="h-16 md:h-20 w-auto" />
+        </div>
+        
+        <!-- Main Heading -->
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-300 via-purple-300 to-emerald-300 bg-clip-text text-transparent leading-tight" data-aos="fade-up" data-aos-delay="200">
+          Kesehatan Postur,<br/>Dilepaskan.
+        </h1>
+        
+        <!-- Description -->
+        <p class="text-lg md:text-xl text-slate-300/90 mb-4 leading-relaxed max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="300">
+          Manfaatkan teknologi IoT cerdas dengan rangkaian alat monitoring unik untuk menjaga postur duduk Anda tetap optimal dan sehat sepanjang hari.
+        </p>
+        
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10" data-aos="fade-up" data-aos-delay="600">
+          <a href="./index.html" class="btn btn-gradient-primary normal-case px-8 py-3 text-base font-semibold relative">
+            <i data-lucide="rocket" class="h-5 w-5 mr-2 relative z-10"></i>
+            <span class="relative z-10">Launch App</span>
+          </a>
+          <a href="#features" class="btn btn-gradient-outline normal-case px-8 py-3 text-base font-semibold relative">
+            <i data-lucide="info" class="h-5 w-5 mr-2 relative z-10"></i>
+            <span class="relative z-10">Pelajari Lebih Lanjut</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FEATURES SECTION ================= -->
+    <section id="features" class="py-20 md:py-32 bg-[#0b1220]" data-aos="fade-up">
+      <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">
+            Fitur Unggulan
+          </h2>
+          <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
+            Temukan berbagai fitur canggih yang membantu Anda menjaga postur duduk yang sehat
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="glassy-card card-border p-6 hover:scale-105 transition-transform duration-300" data-aos="fade-up" data-aos-delay="100">
+            <div class="w-12 h-12 rounded-lg bg-cyan-500/20 flex items-center justify-center mb-4">
+              <i data-lucide="activity" class="h-6 w-6 text-cyan-300"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Monitoring Real-time</h3>
+            <p class="text-slate-400 text-sm">Pantau postur duduk Anda secara real-time dengan sensor tekanan cerdas yang akurat dan responsif.</p>
+          </div>
+          
+          <div class="glassy-card card-border p-6 hover:scale-105 transition-transform duration-300" data-aos="fade-up" data-aos-delay="200">
+            <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center mb-4">
+              <i data-lucide="sparkles" class="h-6 w-6 text-purple-300"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">AI Recommendations</h3>
+            <p class="text-slate-400 text-sm">Dapatkan rekomendasi personal dari AI berbasis Gemini untuk memperbaiki postur Anda.</p>
+          </div>
+          
+          <div class="glassy-card card-border p-6 hover:scale-105 transition-transform duration-300" data-aos="fade-up" data-aos-delay="300">
+            <div class="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center mb-4">
+              <i data-lucide="bar-chart-2" class="h-6 w-6 text-emerald-300"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Analytics Lengkap</h3>
+            <p class="text-slate-400 text-sm">Akses statistik detail, riwayat sesi, dan laporan komprehensif tentang kebiasaan duduk Anda.</p>
+          </div>
+          
+          <div class="glassy-card card-border p-6 hover:scale-105 transition-transform duration-300" data-aos="fade-up" data-aos-delay="400">
+            <div class="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center mb-4">
+              <i data-lucide="bell" class="h-6 w-6 text-yellow-300"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Smart Alerts</h3>
+            <p class="text-slate-400 text-sm">Notifikasi cerdas saat postur buruk terdeteksi atau durasi duduk melebihi ambang batas.</p>
+          </div>
+          
+          <div class="glassy-card card-border p-6 hover:scale-105 transition-transform duration-300" data-aos="fade-up" data-aos-delay="500">
+            <div class="w-12 h-12 rounded-lg bg-rose-500/20 flex items-center justify-center mb-4">
+              <i data-lucide="volume-2" class="h-6 w-6 text-rose-300"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Text-to-Speech</h3>
+            <p class="text-slate-400 text-sm">Dengarkan rekomendasi AI dengan suara natural menggunakan Google Text-to-Speech.</p>
+          </div>
+          
+          <div class="glassy-card card-border p-6 hover:scale-105 transition-transform duration-300" data-aos="fade-up" data-aos-delay="600">
+            <div class="w-12 h-12 rounded-lg bg-violet-500/20 flex items-center justify-center mb-4">
+              <i data-lucide="cloud" class="h-6 w-6 text-violet-300"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Cloud Sync</h3>
+            <p class="text-slate-400 text-sm">Sinkronisasi data dengan Firebase untuk akses multi-device dan backup otomatis.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SOLUTIONS SECTION ================= -->
+    <section id="solutions" class="py-20 md:py-32 bg-gradient-to-br from-cyan-500/5 via-transparent to-emerald-500/5" data-aos="fade-up">
+      <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">
+            Solusi untuk Setiap Kebutuhan
+          </h2>
+          <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
+            Dari individu hingga tim, temukan solusi yang tepat untuk Anda
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glassy-card card-border p-8 hover:border-cyan-400/50 transition-all" data-aos="fade-up" data-aos-delay="100">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-2xl font-bold">Untuk Individu</h3>
+              <i data-lucide="user" class="h-8 w-8 text-cyan-300"></i>
+            </div>
+            <p class="text-slate-400 mb-4">
+              Solusi personal untuk menjaga postur duduk sehat di rumah atau kantor. Pantau kebiasaan duduk Anda dan dapatkan insight untuk hidup yang lebih sehat.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-300">
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="h-4 w-4 text-emerald-400"></i>
+                Monitoring real-time
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="h-4 w-4 text-emerald-400"></i>
+                Rekomendasi AI personal
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="h-4 w-4 text-emerald-400"></i>
+                Dashboard analytics
+              </li>
+            </ul>
+          </div>
+          
+          <div class="glassy-card card-border p-8 hover:border-purple-400/50 transition-all" data-aos="fade-up" data-aos-delay="200">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-2xl font-bold">Untuk Tim</h3>
+              <i data-lucide="users" class="h-8 w-8 text-purple-300"></i>
+            </div>
+            <p class="text-slate-400 mb-4">
+              Kelola kesehatan postur seluruh tim dengan dashboard terpusat. Pantau statistik tim dan tingkatkan produktivitas dengan postur yang lebih baik.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-300">
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="h-4 w-4 text-emerald-400"></i>
+                Multi-user management
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="h-4 w-4 text-emerald-400"></i>
+                Team analytics
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="h-4 w-4 text-emerald-400"></i>
+                Customizable alerts
+              </li>
+            </ul>
+          </div>
+          
+          <div class="glassy-card card-border p-8 hover:border-emerald-400/50 transition-all" data-aos="fade-up" data-aos-delay="300">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-2xl font-bold">Untuk Klinik</h3>
+              <i data-lucide="stethoscope" class="h-8 w-8 text-emerald-300"></i>
+            </div>
+            <p class="text-slate-400 mb-4">
+              Solusi profesional untuk klinik fisioterapi dan kesehatan. Pantau progress pasien dan berikan rekomendasi berbasis data.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-300">
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="h-4 w-4 text-emerald-400"></i>
+                Patient tracking
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="h-4 w-4 text-emerald-400"></i>
+                Progress reports
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="h-4 w-4 text-emerald-400"></i>
+                Export data
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= LEARN SECTION ================= -->
+    <section id="learn" class="py-20 md:py-32 bg-[#0b1220]" data-aos="fade-up">
+      <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">
+            Pelajari Lebih Lanjut
+          </h2>
+          <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
+            Tingkatkan pengetahuan Anda tentang postur duduk yang sehat
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="glassy-card card-border p-6 hover:scale-105 transition-transform duration-300" data-aos="fade-right">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="book-open" class="h-6 w-6 text-cyan-300"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold mb-2">Panduan Pengguna</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                  Pelajari cara menggunakan SitSense dengan efektif. Dari setup awal hingga interpretasi data.
+                </p>
+                <a href="./help.html" class="text-cyan-300 hover:text-cyan-200 text-sm font-medium inline-flex items-center gap-1">
+                  Baca panduan <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glassy-card card-border p-6 hover:scale-105 transition-transform duration-300" data-aos="fade-left">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="graduation-cap" class="h-6 w-6 text-purple-300"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold mb-2">Tips Postur Sehat</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                  Pelajari teknik dan tips untuk menjaga postur duduk yang baik untuk kesehatan jangka panjang.
+                </p>
+                <a href="./about.html" class="text-purple-300 hover:text-purple-200 text-sm font-medium inline-flex items-center gap-1">
+                  Pelajari lebih lanjut <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glassy-card card-border p-6 hover:scale-105 transition-transform duration-300" data-aos="fade-right">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="video" class="h-6 w-6 text-emerald-300"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold mb-2">Video Tutorial</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                  Tonton video tutorial step-by-step untuk memahami fitur-fitur SitSense dengan lebih mudah.
+                </p>
+                <a href="#" class="text-emerald-300 hover:text-emerald-200 text-sm font-medium inline-flex items-center gap-1">
+                  Tonton video <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glassy-card card-border p-6 hover:scale-105 transition-transform duration-300" data-aos="fade-left">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="help-circle" class="h-6 w-6 text-yellow-300"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold mb-2">FAQ</h3>
+                <p class="text-slate-400 text-sm mb-4">
+                  Temukan jawaban untuk pertanyaan yang sering diajukan tentang SitSense dan fitur-fiturnya.
+                </p>
+                <a href="./help.html" class="text-yellow-300 hover:text-yellow-200 text-sm font-medium inline-flex items-center gap-1">
+                  Lihat FAQ <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FOR TEAMS SECTION ================= -->
+    <section id="for-teams" class="py-20 md:py-32 bg-gradient-to-br from-purple-500/5 via-transparent to-cyan-500/5" data-aos="fade-up">
+      <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="max-w-4xl mx-auto">
+          <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-purple-300 to-cyan-300 bg-clip-text text-transparent">
+              Untuk Tim
+            </h2>
+            <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
+              Bawa ide terbaik tim Anda ke kehidupan dengan suite kreatif AI-first yang dirancang untuk kolaborasi dan dibangun untuk bisnis.
+            </p>
+          </div>
+          
+          <div class="glassy-card card-border p-8 md:p-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <h3 class="text-3xl font-bold mb-4">Kolaborasi Tanpa Batas</h3>
+                <p class="text-slate-300 mb-6">
+                  Kelola kesehatan postur seluruh tim dari satu dashboard terpusat. Pantau statistik tim, setel target bersama, dan tingkatkan produktivitas dengan postur yang lebih baik.
+                </p>
+                <ul class="space-y-3 mb-6">
+                  <li class="flex items-start gap-3">
+                    <i data-lucide="check-circle" class="h-5 w-5 text-emerald-400 mt-0.5 flex-shrink-0"></i>
+                    <span class="text-slate-300">Dashboard tim dengan multi-user support</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i data-lucide="check-circle" class="h-5 w-5 text-emerald-400 mt-0.5 flex-shrink-0"></i>
+                    <span class="text-slate-300">Laporan dan analytics untuk seluruh tim</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i data-lucide="check-circle" class="h-5 w-5 text-emerald-400 mt-0.5 flex-shrink-0"></i>
+                    <span class="text-slate-300">Customizable alerts dan notifikasi tim</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i data-lucide="check-circle" class="h-5 w-5 text-emerald-400 mt-0.5 flex-shrink-0"></i>
+                    <span class="text-slate-300">Role-based access control</span>
+                  </li>
+                </ul>
+                <a href="./index.html" class="btn btn-gradient-primary normal-case relative">
+                  <span class="relative z-10">Mulai dengan Tim</span>
+                </a>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="glassy-card card-border p-4 text-center">
+                  <div class="text-3xl font-bold text-cyan-300 mb-2">100+</div>
+                  <div class="text-xs text-slate-400">Tim Aktif</div>
+                </div>
+                <div class="glassy-card card-border p-4 text-center">
+                  <div class="text-3xl font-bold text-purple-300 mb-2">50K+</div>
+                  <div class="text-xs text-slate-400">Data Points</div>
+                </div>
+                <div class="glassy-card card-border p-4 text-center">
+                  <div class="text-3xl font-bold text-emerald-300 mb-2">98%</div>
+                  <div class="text-xs text-slate-400">Kepuasan</div>
+                </div>
+                <div class="glassy-card card-border p-4 text-center">
+                  <div class="text-3xl font-bold text-yellow-300 mb-2">24/7</div>
+                  <div class="text-xs text-slate-400">Support</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FOR DEVELOPERS SECTION ================= -->
+    <section id="for-developers" class="py-20 md:py-32 bg-[#0b1220]" data-aos="fade-up">
+      <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="max-w-4xl mx-auto">
+          <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">
+              Untuk Developer
+            </h2>
+            <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
+              Alami keunggulan pembuatan konten dengan API SitSense. Dengan skalabilitas yang tak tertandingi, sesuaikan output dengan mudah sesuai pedoman merek Anda.
+            </p>
+          </div>
+          
+          <div class="glassy-card card-border p-8 md:p-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div class="order-2 md:order-1">
+                <div class="bg-[#0b1220] rounded-lg p-4 mb-4 border border-white/10">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                  </div>
+                  <pre class="text-xs text-slate-300 overflow-x-auto"><code>// Example API Call
+const response = await fetch(
+  'https://api.sitsense.com/v1/posture',
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer YOUR_API_KEY',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      sensor_data: {...},
+      user_id: 'user123'
+    })
+  }
+);</code></pre>
+                </div>
+              </div>
+              <div class="order-1 md:order-2">
+                <h3 class="text-3xl font-bold mb-4">API yang Powerful</h3>
+                <p class="text-slate-300 mb-6">
+                  Integrasikan SitSense ke dalam aplikasi Anda dengan API RESTful yang mudah digunakan. Akses data real-time, analytics, dan fitur AI dengan beberapa baris kode.
+                </p>
+                <ul class="space-y-3 mb-6">
+                  <li class="flex items-start gap-3">
+                    <i data-lucide="code" class="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0"></i>
+                    <span class="text-slate-300">RESTful API dengan dokumentasi lengkap</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i data-lucide="zap" class="h-5 w-5 text-yellow-400 mt-0.5 flex-shrink-0"></i>
+                    <span class="text-slate-300">Real-time WebSocket support</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i data-lucide="shield" class="h-5 w-5 text-emerald-400 mt-0.5 flex-shrink-0"></i>
+                    <span class="text-slate-300">Secure authentication dengan OAuth 2.0</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <i data-lucide="gauge" class="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0"></i>
+                    <span class="text-slate-300">High scalability dan rate limiting</span>
+                  </li>
+                </ul>
+                <a href="#" class="btn btn-gradient-outline normal-case relative">
+                  <span class="relative z-10">Lihat Dokumentasi API <i data-lucide="external-link" class="h-4 w-4 ml-2"></i></span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONTACT SECTION ================= -->
+    <section id="contact" class="py-20 md:py-32 bg-gradient-to-br from-cyan-500/5 via-transparent to-emerald-500/5" data-aos="fade-up">
+      <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="max-w-4xl mx-auto">
+          <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-300 to-emerald-300 bg-clip-text text-transparent">
+              Hubungi Kami
+            </h2>
+            <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
+              Punya pertanyaan? Kami siap membantu Anda
+            </p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="glassy-card card-border p-6 text-center">
+              <div class="w-16 h-16 rounded-full bg-cyan-500/20 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="mail" class="h-8 w-8 text-cyan-300"></i>
+              </div>
+              <h3 class="text-xl font-semibold mb-2">Email</h3>
+              <p class="text-slate-400 text-sm mb-4">Kirim email untuk pertanyaan umum</p>
+              <a href="mailto:support@sitsense.com" class="text-cyan-300 hover:text-cyan-200">
+                support@sitsense.com
+              </a>
+            </div>
+            
+            <div class="glassy-card card-border p-6 text-center">
+              <div class="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="message-circle" class="h-8 w-8 text-purple-300"></i>
+              </div>
+              <h3 class="text-xl font-semibold mb-2">Live Chat</h3>
+              <p class="text-slate-400 text-sm mb-4">Chat langsung dengan tim support</p>
+              <a href="#" class="text-purple-300 hover:text-purple-200">
+                Mulai Chat
+              </a>
+            </div>
+          </div>
+          
+          <div class="glassy-card card-border p-8">
+            <h3 class="text-2xl font-semibold mb-4 text-center">Kirim Pesan</h3>
+            <form class="space-y-4">
+              <div>
+                <label class="label">
+                  <span class="label-text text-slate-300">Nama</span>
+                </label>
+                <input type="text" placeholder="Nama Anda" class="input input-bordered w-full bg-white/5 border-white/10" />
+              </div>
+              <div>
+                <label class="label">
+                  <span class="label-text text-slate-300">Email</span>
+                </label>
+                <input type="email" placeholder="email@example.com" class="input input-bordered w-full bg-white/5 border-white/10" />
+              </div>
+              <div>
+                <label class="label">
+                  <span class="label-text text-slate-300">Pesan</span>
+                </label>
+                <textarea class="textarea textarea-bordered w-full bg-white/5 border-white/10" placeholder="Tulis pesan Anda di sini..." rows="4"></textarea>
+              </div>
+              <button type="submit" class="btn btn-gradient-primary w-full normal-case relative">
+                <i data-lucide="send" class="h-4 w-4 mr-2 relative z-10"></i>
+                <span class="relative z-10">Kirim Pesan</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="border-t border-white/10 py-12 bg-[#0b1220]">
+      <div class="max-w-7xl mx-auto px-4 md:px-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <img src="./assets/img/logo-sitsense.svg" alt="SitSense" class="h-8 w-auto" />
+              <span class="text-xl font-bold">SitSense</span>
+            </div>
+            <p class="text-sm text-slate-400">
+              Sistem pemantauan postur duduk cerdas untuk kesehatan yang lebih baik.
+            </p>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4">Produk</h4>
+            <ul class="space-y-2 text-sm text-slate-400">
+              <li><a href="#features" class="hover:text-cyan-300 transition-colors">Features</a></li>
+              <li><a href="#solutions" class="hover:text-cyan-300 transition-colors">Solutions</a></li>
+              <li><a href="./index.html" class="hover:text-cyan-300 transition-colors">Dashboard</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4">Resources</h4>
+            <ul class="space-y-2 text-sm text-slate-400">
+              <li><a href="#learn" class="hover:text-cyan-300 transition-colors">Learn</a></li>
+              <li><a href="./help.html" class="hover:text-cyan-300 transition-colors">Help</a></li>
+              <li><a href="./about.html" class="hover:text-cyan-300 transition-colors">About</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-4">Kontak</h4>
+            <ul class="space-y-2 text-sm text-slate-400">
+              <li><a href="#contact" class="hover:text-cyan-300 transition-colors">Contact Us</a></li>
+              <li><a href="#for-teams" class="hover:text-cyan-300 transition-colors">For Teams</a></li>
+              <li><a href="#for-developers" class="hover:text-cyan-300 transition-colors">For Developers</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-t border-white/10 pt-8 text-center text-sm text-slate-400">
+          <p>© <span class="text-slate-200 font-medium">SitSense</span> — Project IoT. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ================= SCRIPTS ================= -->
+    <script>
+      // Tandai bahwa user sudah mengunjungi home
+      localStorage.setItem('sitsense-visited-home', 'true');
+
+      // Init AOS & Lucide after page ready
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.AOS) AOS.init();
+        if (window.lucide) {
+          window.lucide.createIcons();
+          // Re-render icons after a short delay to ensure all are loaded
+          setTimeout(() => {
+            window.lucide.createIcons();
+          }, 100);
+        }
+      });
+
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,102 @@
+<!-- components/card-status.html -->
+<!--
+  Kartu status reusable untuk sensor/perangkat.
+  Pakai beberapa kali di dashboard; tidak memakai ID supaya bisa banyak instance.
+
+  Status yang didukung (via data-status):
+    good | warn | bad | offline
+
+  Akses cepat elemen internal via [data-role]:
+    value, unit, trend, label, progress, updated, alerts
+
+  Tindakan (button [data-action]):
+    details, calibrate, refresh
+
+  Contoh pemakaian (dinamis):
+    <div id="status-slot"></div>
+    <script>
+      (async () => {
+        const slot = document.getElementById('status-slot');
+        slot.innerHTML = await (await fetch('/components/card-status.html')).text();
+        // Gandakan jika perlu
+        const second = slot.firstElementChild.cloneNode(true);
+        slot.appendChild(second);
+        // Render ikon
+        if (window.lucide) window.lucide.createIcons();
+      })();
+    </script>
+
+  Contoh update dari JS:
+    function paintCard(card, data){
+      card.dataset.status = data.status || 'good';
+      card.querySelector('[data-role=label]').textContent = data.label || 'Sensor';
+      card.querySelector('[data-role=value]').textContent = data.value ?? '—';
+      card.querySelector('[data-role=unit]').textContent = data.unit || '';
+      card.querySelector('[data-role=trend]').textContent = data.trend || '';
+      card.querySelector('[data-role=progress]').value = Math.max(0, Math.min(100, data.progress||0));
+      card.querySelector('[data-role=alerts]').textContent = (data.alerts||0);
+      const t = card.querySelector('[data-role=updated]'); if (t) t.textContent = new Date().toLocaleTimeString();
+    }
+-->
+
+<article class="card glassy-card card-border sensor-card" data-sensor-id="seat-1" data-status="good">
+  <div class="card-body p-4">
+    <!-- Header: icon + label + status -->
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <div class="h-8 w-8 rounded-xl bg-white/5 border border-white/10 grid place-items-center">
+          <i data-lucide="activity" class="h-4 w-4 text-cyan-300"></i>
+        </div>
+        <div class="leading-tight">
+          <div class="text-sm text-slate-300/80">Status</div>
+          <div class="font-semibold" data-role="label">Tekanan Duduk</div>
+        </div>
+      </div>
+
+      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border status-badge">
+        <span class="h-2 w-2 rounded-full status-dot"></span>
+        <span class="status-text">Baik</span>
+      </span>
+    </div>
+
+    <!-- Metric utama -->
+    <div class="mt-3 flex items-end gap-2">
+      <div class="text-3xl font-bold leading-none" data-role="value">—</div>
+      <div class="text-sm text-slate-300/80 mb-1" data-role="unit">/100</div>
+      <div class="ml-auto text-xs text-slate-400" aria-label="tren" data-role="trend">—</div>
+    </div>
+
+    <!-- Progress & meta -->
+    <div class="mt-3">
+      <progress class="progress w-full" value="0" max="100" data-role="progress"></progress>
+      <div class="mt-2 grid grid-cols-3 gap-2 text-xs text-slate-400">
+        <div class="inline-flex items-center gap-1"><i data-lucide="bell" class="h-3.5 w-3.5"></i> Peringatan: <span class="text-slate-200 ml-1" data-role="alerts">0</span></div>
+        <div class="inline-flex items-center gap-1"><i data-lucide="target" class="h-3.5 w-3.5"></i> Resolusi: <span class="text-slate-200 ml-1" data-role="res">8×8</span></div>
+        <div class="inline-flex items-center gap-1"><i data-lucide="clock" class="h-3.5 w-3.5"></i> Update: <span class="text-slate-200 ml-1" data-role="updated">—</span></div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 flex items-center justify-between">
+      <div class="text-[11px] text-slate-400">ID: <span class="text-slate-200" data-role="id">seat-1</span></div>
+      <div class="flex items-center gap-2">
+        <button class="btn btn-outline btn-xs" data-action="refresh"><i data-lucide="refresh-ccw" class="h-3.5 w-3.5"></i> Refresh</button>
+        <button class="btn btn-outline btn-xs" data-action="calibrate"><i data-lucide="compass" class="h-3.5 w-3.5"></i> Kalibrasi</button>
+        <button class="btn btn-primary btn-xs" data-action="details"><i data-lucide="zoom-in" class="h-3.5 w-3.5"></i> Detail</button>
+      </div>
+    </div>
+  </div>
+</article>
+
+<style>
+  /* Warna badge berdasarkan data-status pada .sensor-card */
+  .sensor-card[data-status="good"]   .status-badge{ border-color: rgba(16,185,129,.35); color:#10b981; background: rgba(16,185,129,.10); }
+  .sensor-card[data-status="warn"]   .status-badge{ border-color: rgba(245,158,11,.35); color:#f59e0b; background: rgba(245,158,11,.10); }
+  .sensor-card[data-status="bad"]    .status-badge{ border-color: rgba(239,68,68,.35);  color:#ef4444; background: rgba(239,68,68,.10); }
+  .sensor-card[data-status="offline"] .status-badge{ border-color: rgba(148,163,184,.35); color:#94a3b8; background: rgba(148,163,184,.10); }
+
+  .sensor-card[data-status="good"]   .status-dot{ background:#10b981; }
+  .sensor-card[data-status="warn"]   .status-dot{ background:#f59e0b; }
+  .sensor-card[data-status="bad"]    .status-dot{ background:#ef4444; }
+  .sensor-card[data-status="offline"] .status-dot{ background:#94a3b8; }
+</style>

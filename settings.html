@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="id" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SitSense — Pengaturan</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind + DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Icons & helpers -->
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js" defer></script>
+
+    <!-- App styles -->
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+    <link rel="stylesheet" href="./assets/css/theme.css" />
+
+    <style>
+      body { font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif; }
+      
+      /* Custom Gradient Button Styles */
+      .btn-gradient-primary {
+        background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #10b981 100%);
+        background-size: 200% 200%;
+        border: none;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3), 0 0 20px rgba(139, 92, 246, 0.2);
+        transform-origin: center;
+        will-change: background-position, box-shadow, transform;
+      }
+      
+      .btn-gradient-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.6s ease;
+        z-index: 1;
+      }
+      
+      .btn-gradient-primary:hover {
+        background-position: 100% 0;
+        box-shadow: 
+          0 8px 30px rgba(6, 182, 212, 0.6),
+          0 0 50px rgba(139, 92, 246, 0.5),
+          0 0 70px rgba(16, 185, 129, 0.4),
+          0 12px 40px rgba(0, 0, 0, 0.4);
+        transform: translateY(-2px) scale(1.02);
+      }
+      
+      .btn-gradient-primary:hover::before {
+        left: 100%;
+      }
+      
+      .btn-gradient-primary:active {
+        transform: translateY(0) scale(0.98);
+        transition: transform 0.1s;
+      }
+      
+      .btn-gradient-primary .relative {
+        position: relative;
+        z-index: 2;
+      }
+      
+      /* Outline Button dengan Gradient Border */
+      .btn-gradient-outline {
+        background: transparent;
+        border: 2px solid transparent;
+        color: #e7eefc;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+        will-change: box-shadow, transform;
+      }
+      
+      .btn-gradient-outline::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 2px;
+        background: linear-gradient(135deg, #06b6d4, #8b5cf6, #10b981);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        z-index: 0;
+      }
+      
+      .btn-gradient-outline::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2), rgba(16, 185, 129, 0.2));
+        transition: left 0.5s ease;
+        z-index: -1;
+      }
+      
+      .btn-gradient-outline:hover {
+        color: #ffffff;
+        box-shadow: 
+          0 0 25px rgba(6, 182, 212, 0.4),
+          0 0 50px rgba(139, 92, 246, 0.3),
+          inset 0 0 25px rgba(6, 182, 212, 0.15);
+        transform: translateY(-2px) scale(1.02);
+      }
+      
+      .btn-gradient-outline:hover::after {
+        left: 100%;
+      }
+      
+      .btn-gradient-outline:active {
+        transform: translateY(0) scale(0.98);
+        transition: transform 0.1s;
+      }
+      
+      .btn-gradient-outline .relative {
+        position: relative;
+        z-index: 2;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen text-slate-100">
+    <!-- ================= SIDEBAR ================= -->
+    <div id="sidebar-slot"></div>
+    <script>
+      (async () => {
+        const slot = document.getElementById('sidebar-slot');
+        slot.innerHTML = await (await fetch('./components/sidebar.html')).text();
+        // Render icons setelah sidebar dimuat
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      })();
+    </script>
+
+    <!-- ================= HEADER ================= -->
+    <header class="sticky top-0 z-40 border-b border-white/10 bg-[#0b1220]/90 backdrop-blur-xl md:ml-64">
+      <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <!-- Hamburger Menu (Mobile) -->
+          <button id="hamburgerMenu" class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors">
+            <i data-lucide="menu" class="h-6 w-6"></i>
+          </button>
+          <div class="flex items-center gap-3">
+            <img src="./assets/img/logo-sitsense.svg" alt="SitSense" class="h-7 w-auto hidden md:block" />
+            <span class="text-lg font-semibold tracking-tight">Pengaturan</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 text-xs md:text-sm">
+          <span id="wifiStatus" class="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 px-3 py-1">
+            <i data-lucide="wifi" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Wi‑Fi: </span><span>—</span>
+          </span>
+          <span id="authStatus" class="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 px-3 py-1">
+            <i data-lucide="user-check" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Auth: </span><span>—</span>
+          </span>
+          <span class="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 px-3 py-1">
+            <i data-lucide="clock" class="h-4 w-4"></i>
+            <time id="clock" class="hidden sm:inline">--:--:--</time>
+            <time id="clockShort" class="sm:hidden">--:--</time>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= MAIN ================= -->
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-6 md:ml-64">
+      <!-- General settings -->
+      <section class="card glassy-card card-border" data-aos="fade-up">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <h2 class="card-title">Umum</h2>
+            <div class="text-xs text-slate-400">Sesuaikan preferensi global</div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div class="form-control">
+              <label class="label"><span class="label-text">Tema</span></label>
+              <div class="join">
+                <input type="radio" name="theme" id="themeDark"   class="btn join-item" aria-label="Gelap" checked>
+                <input type="radio" name="theme" id="themeLight"  class="btn join-item" aria-label="Terang">
+                <input type="radio" name="theme" id="themeSystem" class="btn join-item" aria-label="Sistem">
+              </div>
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text">Bahasa (TTS & UI)</span></label>
+              <select id="langSelect" class="select select-bordered">
+                <option value="id-ID" selected>Indonesia (id-ID)</option>
+                <option value="en-US">English (en-US)</option>
+              </select>
+            </div>
+            <div class="form-control">
+              <label class="label"><span class="label-text">Notifikasi</span></label>
+              <label class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-2">
+                <input type="checkbox" id="notifToggle" class="toggle" checked />
+                <span>Aktifkan toast</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alerts (durasi duduk) -->
+      <section class="card glassy-card card-border" data-aos="fade-up">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <h2 class="card-title">Peringatan Durasi Duduk</h2>
+            <div class="text-xs text-slate-400">Atur ambang & audio</div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+            <label class="form-control">
+              <span class="label-text mb-1">Ambang Lembut (menit)</span>
+              <input type="number" id="softThresholdInput" class="input input-bordered" min="5" max="180" step="5" value="30" />
+            </label>
+            <label class="form-control">
+              <span class="label-text mb-1">Ambang Kuat (menit)</span>
+              <input type="number" id="hardThresholdInput" class="input input-bordered" min="10" max="240" step="5" value="60" />
+            </label>
+            <label class="form-control">
+              <span class="label-text mb-1">Ulangi Lembut (menit)</span>
+              <input type="number" id="repeatSoftInput" class="input input-bordered" min="5" max="120" step="5" value="15" />
+            </label>
+            <label class="form-control">
+              <span class="label-text mb-1">Ulangi Kuat (menit)</span>
+              <input type="number" id="repeatHardInput" class="input input-bordered" min="10" max="240" step="5" value="30" />
+            </label>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-4">
+            <label class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-2">
+              <input type="checkbox" id="muteAlertsToggle" class="toggle" />
+              <span>Bisukan suara peringatan</span>
+            </label>
+            <button id="testSoftBtn" class="btn btn-outline btn-sm">Tes Suara (Soft)</button>
+            <button id="testHardBtn" class="btn btn-outline btn-sm">Tes Suara (Hard)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TTS (Google atau Web Speech) -->
+      <section class="card glassy-card card-border" data-aos="fade-up">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <h2 class="card-title">Suara Asisten (TTS)</h2>
+            <div class="text-xs text-slate-400">Google Cloud TTS via proxy, atau fallback Web Speech</div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+            <label class="form-control">
+              <span class="label-text mb-1">Suara</span>
+              <select id="voiceSelect" class="select select-bordered">
+                <option value="id-ID-Standard-A" selected>id-ID-Standard-A</option>
+                <option value="id-ID-Standard-B">id-ID-Standard-B</option>
+                <option value="id-ID-Wavenet-A">id-ID-Wavenet-A</option>
+                <option value="id-ID-Wavenet-D">id-ID-Wavenet-D</option>
+              </select>
+            </label>
+            <label class="form-control">
+              <span class="label-text mb-1">Kecepatan</span>
+              <input type="range" id="ttsRate" class="range" min="0.5" max="2" step="0.05" value="1" />
+            </label>
+            <label class="form-control">
+              <span class="label-text mb-1">Pitch</span>
+              <input type="range" id="ttsPitch" class="range" min="-10" max="10" step="1" value="0" />
+            </label>
+            <div class="form-control">
+              <span class="label-text mb-1">Proxy TTS (opsi)</span>
+              <input type="url" id="ttsProxyInput" class="input input-bordered" placeholder="https://server-kamu/tts" />
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center gap-2">
+            <input type="text" id="ttsTestText" class="input input-bordered w-full" placeholder="Teks untuk dites" value="Halo! Ini adalah suara asisten SitSense." />
+            <button id="ttsTestBtn" class="btn btn-gradient-primary relative">
+              <span class="relative z-10">Tes Bicara</span>
+            </button>
+            <button id="ttsStopBtn" class="btn btn-gradient-outline relative">
+              <span class="relative z-10">Stop</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI Gemini -->
+      <section class="card glassy-card card-border" data-aos="fade-up">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <h2 class="card-title">AI Rekomendasi (Gemini)</h2>
+            <div class="text-xs text-slate-400">Gunakan Proxy agar API key aman</div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <label class="form-control">
+              <span class="label-text mb-1">Proxy Gemini</span>
+              <input type="url" id="geminiProxyInput" class="input input-bordered" placeholder="https://server-kamu/gemini" />
+            </label>
+            <label class="form-control">
+              <span class="label-text mb-1">API Key (opsional)</span>
+              <input type="password" id="geminiApiKeyInput" class="input input-bordered" placeholder="•••••••" />
+            </label>
+            <label class="form-control">
+              <span class="label-text mb-1">Model</span>
+              <select id="geminiModelSelect" class="select select-bordered">
+                <option value="gemini-1.5-flash" selected>gemini-1.5-flash</option>
+                <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="mt-4 flex items-center gap-2">
+            <button id="geminiTestBtn" class="btn btn-gradient-outline relative">
+              <span class="relative z-10">Tes Koneksi</span>
+            </button>
+            <span id="geminiTestStatus" class="text-sm text-slate-400">Belum dites</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Import/Export -->
+      <section class="card glassy-card card-border" data-aos="fade-up">
+        <div class="card-body">
+          <div class="flex items-center justify-between">
+            <h2 class="card-title">Impor / Ekspor</h2>
+            <div class="text-xs text-slate-400">Cadangkan atau pindahkan pengaturan</div>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-2">
+            <button id="exportSettingsBtn" class="btn btn-gradient-outline relative">
+              <span class="relative z-10">Export JSON</span>
+            </button>
+            <label for="importFile" class="btn btn-gradient-outline relative">
+              <span class="relative z-10">Import JSON</span>
+            </label>
+            <input id="importFile" type="file" accept="application/json" class="hidden" />
+            <button id="resetSettingsBtn" class="btn btn-outline btn-error">Reset Default</button>
+            <button id="saveSettingsBtn" class="btn btn-gradient-primary relative">
+              <span class="relative z-10">Simpan</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="border-t border-white/10 py-6">
+      <div class="max-w-7xl mx-auto px-4 md:px-6 text-sm text-slate-400 flex items-center justify-between">
+        <p>© <span class="text-slate-200 font-medium">SitSense</span> — Project IoT</p>
+        <p>Pengaturan</p>
+      </div>
+    </footer>
+
+    <!-- ================= Scripts ================= -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.AOS) AOS.init();
+        if (window.lucide) window.lucide.createIcons();
+      });
+    </script>
+
+    <script src="./assets/js/ui.js"></script>
+    <script src="./assets/js/settings.js"></script>
+  </body>
+</html>

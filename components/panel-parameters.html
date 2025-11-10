@@ -1,0 +1,108 @@
+<!-- components/panel-parameters.html -->
+<section id="panel-parameters" class="card glassy-card card-border" aria-label="Panel Parameter Visual">
+  <div class="card-body">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <h3 class="card-title">Parameter Visual</h3>
+        <div class="badge badge-info badge-outline">Real-time</div>
+      </div>
+      <!-- Controls (hooked by posture-visual.js later) -->
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <label class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+          <i data-lucide="grid" class="h-4 w-4"></i>
+          <span>Resolusi</span>
+          <select id="heatmapResolution" class="select select-bordered select-xs ml-1">
+            <option value="4">4×4</option>
+            <option value="6">6×6</option>
+            <option value="8" selected>8×8</option>
+            <option value="10">10×10</option>
+          </select>
+        </label>
+        <label class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+          <i data-lucide="sliders" class="h-4 w-4"></i>
+          <span>Sensitivitas</span>
+          <input id="heatmapSensitivity" type="range" min="0" max="100" value="60" class="range range-xs w-28" />
+        </label>
+        <label class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+          <input id="toggleHeatmap" type="checkbox" class="toggle toggle-xs" checked />
+          <span>Heatmap</span>
+        </label>
+        <label class="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+          <input id="toggleSilhouette" type="checkbox" class="toggle toggle-xs" checked />
+          <span>Silhouette</span>
+        </label>
+        <button id="btnCalibrate" class="btn btn-outline btn-xs">
+          <i data-lucide="compass" class="h-4 w-4"></i>
+          Kalibrasi
+        </button>
+      </div>
+    </div>
+
+    <!-- Visual surface -->
+    <div class="relative mt-4 w-full aspect-[16/9] rounded-2xl overflow-hidden bg-slate-900/60 border border-white/5 chart-surface">
+      <!-- Heatmap Canvas (masked by optional CSS class) -->
+      <canvas id="heatmapCanvas" class="absolute inset-0 w-full h-full"></canvas>
+      <!-- Silhouette Overlay -->
+      <img id="silhouette" src="./assets/img/posture-silhouette.svg" alt="silhouette" class="absolute inset-0 w-full h-full object-contain opacity-80" onerror="this.style.display='none'" />
+
+      <!-- Legend -->
+      <div class="absolute bottom-3 right-3 flex items-center gap-2 text-[11px] bg-white/5 border border-white/10 rounded-full px-3 py-1">
+        <span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-2 rounded-full bg-emerald-400"></span> rendah</span>
+        <span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-2 rounded-full bg-yellow-400"></span> sedang</span>
+        <span class="inline-flex items-center gap-1"><span class="inline-block h-2 w-2 rounded-full bg-rose-500"></span> tinggi</span>
+      </div>
+    </div>
+
+    <!-- Balance indicators & score -->
+    <div class="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1"><span>Distribusi Tekanan (FSR)</span><span id="balanceLRVal">0%</span></div>
+          <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+            <div id="balanceLRFill" class="h-full bg-cyan-400 transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1"><span>Keseimbangan Leher ↔ Punggung</span><span id="balanceFBVal">0%</span></div>
+          <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+            <div id="balanceFBFill" class="h-full bg-emerald-400 transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card glassy-card card-border">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between">
+            <h4 class="text-sm font-semibold">Skor Postur</h4>
+            <i data-lucide="activity" class="h-4 w-4 text-emerald-300"></i>
+          </div>
+          <div class="mt-2 flex items-end gap-2">
+            <div class="text-3xl font-bold" id="postureScore">—</div>
+            <div class="text-sm text-slate-300/80" id="postureLabel">menunggu data…</div>
+          </div>
+          <div class="mt-3">
+            <progress class="progress w-full" value="0" max="100" id="postureScoreBar"></progress>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer actions (optional) -->
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="flex items-center gap-2">
+        <span class="badge badge-status" data-status="good">Baik</span>
+        <span class="badge badge-status" data-status="warn">Perlu Koreksi</span>
+        <span class="badge badge-status" data-status="bad">Buruk</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btnSnapshot" class="btn btn-outline btn-xs">
+          <i data-lucide="camera" class="h-4 w-4"></i>
+          Snapshot
+        </button>
+        <button id="btnResetView" class="btn btn-outline btn-xs">
+          <i data-lucide="refresh-ccw" class="h-4 w-4"></i>
+          Reset Tampilan
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
